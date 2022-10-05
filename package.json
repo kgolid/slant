@@ -1,0 +1,33 @@
+{
+  "name": "slant",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "author": "Kjetil Golid",
+  "license": "ISC",
+  "keywords": [],
+  "description": "Grid based sketch with slanted cells bringing complexity",
+  "browser": "dist/index.js",
+  "dependencies": {
+    "chroma-js": "^2.4.2",
+    "chromotome": "^1.20.0",
+    "dat.gui": "^0.7.7",
+    "p5": "^1.4.2",
+    "simplex-noise": "^4.0.0",
+    "tweakpane": "^3.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^15.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@tweakpane/core": "^1.1.0",
+    "@types/chroma-js": "^2.1.4",
+    "@types/p5": "^1.4.3",
+    "rollup": "^2.63.0",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.4"
+  }
+}
