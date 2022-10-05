@@ -67,10 +67,33 @@
 	    return to.concat(ar || Array.prototype.slice.call(from));
 	}
 
-	var hash = 'c2633edbb668edaaa4f5852a3d6f8a7b476bd5bc81a893f3845486165e1dcb02';
+	function createHash() {
+	    var alpha = '01234567890abcdef';
+	    var h = '';
+	    for (var i = 0; i < 64; i++) {
+	        h += alpha.charAt(Math.floor(Math.random() * alpha.length));
+	    }
+	    return h;
+	}
+
+	var PARAMS = {
+	    seed: createHash(),
+	    sunPosition: { x: 0, y: 0 },
+	    mouseControlsSun: false,
+	    sunHeight: 250,
+	    scale: 1.6,
+	    heightRange: 10,
+	    slopeRange: 0.1,
+	    noiseMagnitude: 3,
+	    noiseScale: 0.05,
+	    mainPalette: 'ducci_q',
+	    secondPalette: 'hilda04',
+	    contrastPalette: 'tundra4'
+	};
 
 	var Random = (function () {
 	    function Random(hash) {
+	        console.log('hello');
 	        this.useA = false;
 	        var sfc32 = function (uint128Hex) {
 	            var a = parseInt(uint128Hex.substring(0, 8), 16);
@@ -104,11 +127,14 @@
 	    };
 	    return Random;
 	}());
-	new Random(hash);
+	var rand = new Random(PARAMS.seed);
 	function reset() {
-	    new Random(hash);
+	    rand = new Random(PARAMS.seed);
 	}
-	var rng = Math.random;
+	var rng = brnd;
+	function brnd() {
+	    return rand.random_dec();
+	}
 
 	function getRandomCell(x, y, w, h, zmax, xsmax, ysmax) {
 	    var z = xsmax * w + ysmax * h + rng() * zmax;
@@ -5158,8 +5184,8 @@
 	    return p;
 	}
 
-	function createGrid(offset, numberOfCells, xpattern, ypattern) {
-	    var noise = createNoise2D();
+	function createGrid(offset, numberOfCells, xpattern, ypattern, heightRange, slopeRange, noiseMagnitude, noiseScale) {
+	    var noise = createNoise2D(rng);
 	    var cells = [];
 	    var accy = offset.y;
 	    for (var i = 0; i < numberOfCells.y; i++) {
@@ -5167,8 +5193,8 @@
 	        var ch = ypattern[i % ypattern.length];
 	        for (var j = 0; j < numberOfCells.x; j++) {
 	            var cw = xpattern[j % xpattern.length];
-	            var hdelta = 1 + Math.max(0, noise(i / 20, j / 20)) * 3;
-	            cells.push(getRandomCell(accx, accy, cw + 2, ch + 2, hdelta * 10, hdelta * 0.1, hdelta * 0.1));
+	            var hdelta = 1 + Math.max(0, noise(i * noiseScale, j * noiseScale)) * noiseMagnitude;
+	            cells.push(getRandomCell(accx, accy, cw + 2, ch + 2, hdelta * heightRange, hdelta * slopeRange, hdelta * slopeRange));
 	            accx += cw;
 	        }
 	        accy += ch;
@@ -12639,84 +12665,109 @@
 	}));
 	});
 
-	var PARAMS = {
-	    sunPosition: { x: 0, y: 0 },
-	    mouseControlsSun: false,
-	    sunHeight: 250,
-	    scale: 1.6,
-	    noiseMagnitude: 3,
-	    mainPalette: 'ducci_q',
-	    secondPalette: 'hilda04',
-	    contrastPalette: 'tundra4'
-	};
-
 	function createGUI (resetFn) {
 	    var pane = new tweakpane.Pane({ title: 'Slant Settings' });
-	    pane.addInput(PARAMS, 'sunPosition', {
+	    var seedPane = pane.addFolder({ title: 'Seed Settings' });
+	    seedPane.addInput(PARAMS, 'seed', { label: 'Seed' }).on('change', function () { return resetFn(); });
+	    var seed_button = seedPane.addButton({ title: 'Randomize Seed' });
+	    seed_button.on('click', function () {
+	        randomizeSeed();
+	        pane.refresh();
+	    });
+	    var sunPane = pane.addFolder({ title: 'Sun Settings' });
+	    sunPane.addInput(PARAMS, 'sunPosition', {
 	        label: 'Sun position',
 	        picker: 'inline',
 	        expanded: true,
 	        x: {
+	            step: 0.1,
 	            min: -1,
 	            max: 1
 	        },
 	        y: {
+	            step: 0.1,
 	            min: -1,
 	            max: 1
 	        }
 	    });
-	    pane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
-	    pane.addInput(PARAMS, 'sunHeight', {
+	    sunPane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
+	    sunPane.addInput(PARAMS, 'sunHeight', {
 	        label: 'Sun height',
 	        step: 50,
 	        min: 50,
 	        max: 500
 	    });
-	    pane.addInput(PARAMS, 'scale', {
+	    var cellPane = pane.addFolder({ title: 'Cell Settings' });
+	    cellPane.addInput(PARAMS, 'scale', {
 	        label: 'Scale',
 	        step: 0.1,
-	        min: 0.5,
+	        min: 0.6,
 	        max: 2.5
 	    });
-	    pane.addInput(PARAMS, 'noiseMagnitude', {
+	    cellPane
+	        .addInput(PARAMS, 'heightRange', {
+	        label: 'Height Range',
+	        step: 1,
+	        min: 0,
+	        max: 20
+	    })
+	        .on('change', function () { return resetFn(); });
+	    cellPane
+	        .addInput(PARAMS, 'slopeRange', {
+	        label: 'Slope Range',
+	        step: 0.01,
+	        min: 0,
+	        max: 0.2
+	    })
+	        .on('change', function () { return resetFn(); });
+	    var noisePane = pane.addFolder({ title: 'Noise Settings' }).on('change', function () { return resetFn(); });
+	    noisePane.addInput(PARAMS, 'noiseMagnitude', {
 	        label: 'Noise Magnitude',
-	        step: 0.5,
+	        step: 0.2,
 	        min: 0,
 	        max: 5
 	    });
-	    pane.addInput(PARAMS, 'mainPalette', {
+	    noisePane.addInput(PARAMS, 'noiseScale', {
+	        label: 'Noise Scale',
+	        step: 0.01,
+	        min: 0.01,
+	        max: 0.1
+	    });
+	    var colorPane = pane.addFolder({ title: 'Color Settings' }).on('change', function () { return resetFn(); });
+	    colorPane.addInput(PARAMS, 'mainPalette', {
 	        label: 'Main palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
-	    pane.addInput(PARAMS, 'secondPalette', {
+	    colorPane.addInput(PARAMS, 'secondPalette', {
 	        label: 'Secondary palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
-	    pane.addInput(PARAMS, 'contrastPalette', {
+	    colorPane.addInput(PARAMS, 'contrastPalette', {
 	        label: 'Contrast palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
-	    var randomize_button = pane.addButton({ title: 'Randomize Palettes' });
-	    randomize_button.on('click', function () {
+	    var palette_button = colorPane.addButton({ title: 'Randomize Colors' });
+	    palette_button.on('click', function () {
 	        randomizePalettes();
 	        pane.refresh();
 	    });
-	    var reset_button = pane.addButton({ title: 'Reset Grid' });
-	    reset_button.on('click', function () { return resetFn(); });
 	}
 	function randomizePalettes() {
 	    PARAMS.mainPalette = get().name;
 	    PARAMS.secondPalette = get().name;
 	    PARAMS.contrastPalette = get().name;
+	}
+	function randomizeSeed() {
+	    PARAMS.seed = createHash();
 	}
 
 	var sketch = function (p) {
@@ -12740,7 +12791,6 @@
 	        p.noStroke();
 	        p.pixelDensity(2);
 	        p.fill(255);
-	        reset();
 	        createGUI(resetGrid);
 	        resetGrid();
 	    };
@@ -12762,8 +12812,9 @@
 	            p.saveCanvas('Slant_' + Date.now(), 'jpeg');
 	    };
 	    function resetGrid() {
+	        reset();
 	        bases = getBases();
-	        grid = createGrid({ x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 }, { x: NCELLSX, y: NCELLSY, z: 0 }, XPATTERN, YPATTERN);
+	        grid = createGrid({ x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 }, { x: NCELLSX, y: NCELLSY, z: 0 }, XPATTERN, YPATTERN, PARAMS.heightRange, PARAMS.slopeRange, PARAMS.noiseMagnitude, PARAMS.noiseScale);
 	    }
 	    function getBases() {
 	        var PHI1 = -Math.PI / 6;

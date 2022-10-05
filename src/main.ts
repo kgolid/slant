@@ -32,8 +32,6 @@ let sketch = function (p: P5) {
     p.pixelDensity(2);
     p.fill(255);
 
-    reset();
-
     createGUI(resetGrid);
     resetGrid();
   };
@@ -65,12 +63,18 @@ let sketch = function (p: P5) {
   };
 
   function resetGrid() {
+    reset();
+
     bases = getBases();
     grid = createGrid(
       { x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 },
       { x: NCELLSX, y: NCELLSY, z: 0 },
       XPATTERN,
-      YPATTERN
+      YPATTERN,
+      PARAMS.heightRange,
+      PARAMS.slopeRange,
+      PARAMS.noiseMagnitude,
+      PARAMS.noiseScale
     );
   }
 

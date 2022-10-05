@@ -29,11 +29,16 @@ export interface Cell {
 }
 
 export interface ParameterList {
+  seed: string;
   sunPosition: { x: number; y: number };
   mouseControlsSun: boolean;
   sunHeight: number;
   scale: number;
+
+  heightRange: number;
+  slopeRange: number;
   noiseMagnitude: number;
+  noiseScale: number;
 
   mainPalette: string;
   secondPalette: string;

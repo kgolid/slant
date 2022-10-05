@@ -1,4 +1,4 @@
-import * as input from './input';
+import PARAMS from './params';
 
 class Random {
   useA: boolean;
@@ -6,6 +6,7 @@ class Random {
   prngB: () => number;
 
   constructor(hash: string) {
+    console.log('hello');
     this.useA = false;
     let sfc32 = function (uint128Hex: string) {
       let a = parseInt(uint128Hex.substring(0, 8), 16);
@@ -42,9 +43,13 @@ class Random {
   }
 }
 
-let rand = new Random(input.hash);
+let rand = new Random(PARAMS.seed);
 
 export function reset() {
-  rand = new Random(input.hash);
+  rand = new Random(PARAMS.seed);
 }
-export const rng = Math.random; //rand.random_dec;
+export const rng = brnd;
+
+function brnd() {
+  return rand.random_dec();
+}
