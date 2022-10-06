@@ -6,7 +6,6 @@ class Random {
   prngB: () => number;
 
   constructor(hash: string) {
-    console.log('hello');
     this.useA = false;
     let sfc32 = function (uint128Hex: string) {
       let a = parseInt(uint128Hex.substring(0, 8), 16);

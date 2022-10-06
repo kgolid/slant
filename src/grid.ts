@@ -22,7 +22,8 @@ export function createGrid(
     let ch = ypattern[i % ypattern.length];
     for (var j = 0; j < numberOfCells.x; j++) {
       let cw = xpattern[j % xpattern.length];
-      let hdelta = 1 + Math.max(0, noise(i * noiseScale, j * noiseScale)) * noiseMagnitude;
+      let hdelta =
+        1 + Math.max(0, noise(accx * noiseScale * 0.02, accy * noiseScale * 0.02)) * noiseMagnitude;
       cells.push(
         getRandomCell(
           accx,

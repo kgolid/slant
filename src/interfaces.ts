@@ -33,14 +33,18 @@ export interface ParameterList {
   sunPosition: { x: number; y: number };
   mouseControlsSun: boolean;
   sunHeight: number;
-  scale: number;
+  zoom: number;
 
   heightRange: number;
   slopeRange: number;
   noiseMagnitude: number;
   noiseScale: number;
 
-  mainPalette: string;
-  secondPalette: string;
-  contrastPalette: string;
+  palette1: string;
+  palette1Levels: number;
+  palette2: string;
+  palette2Levels: number;
+  palette3: string;
+  palette3Levels: number;
+  stroke: boolean;
 }

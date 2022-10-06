@@ -19,7 +19,6 @@ export default function (resetFn: Function) {
   sunPane.addInput(PARAMS, 'sunPosition', {
     label: 'Sun position',
     picker: 'inline',
-    expanded: true,
     x: {
       step: 0.1,
       min: -1,
@@ -35,14 +34,14 @@ export default function (resetFn: Function) {
 
   sunPane.addInput(PARAMS, 'sunHeight', {
     label: 'Sun height',
-    step: 50,
+    step: 25,
     min: 50,
     max: 500,
   });
 
   const cellPane = pane.addFolder({ title: 'Cell Settings' });
-  cellPane.addInput(PARAMS, 'scale', {
-    label: 'Scale',
+  cellPane.addInput(PARAMS, 'zoom', {
+    label: 'Zoom',
     step: 0.1,
     min: 0.6,
     max: 2.5,
@@ -80,17 +79,35 @@ export default function (resetFn: Function) {
   });
 
   const colorPane = pane.addFolder({ title: 'Color Settings' }).on('change', () => resetFn());
-  colorPane.addInput(PARAMS, 'mainPalette', {
+  colorPane.addInput(PARAMS, 'palette1', {
     label: 'Main palette',
     options: Object.assign({}, ...tome.getNames().map((n) => ({ [n]: n }))),
   });
-  colorPane.addInput(PARAMS, 'secondPalette', {
+  colorPane.addInput(PARAMS, 'palette1Levels', {
+    label: 'Levels',
+    step: 2,
+    min: 2,
+    max: 50,
+  });
+  colorPane.addInput(PARAMS, 'palette2', {
     label: 'Secondary palette',
     options: Object.assign({}, ...tome.getNames().map((n) => ({ [n]: n }))),
   });
-  colorPane.addInput(PARAMS, 'contrastPalette', {
+  colorPane.addInput(PARAMS, 'palette2Levels', {
+    label: 'Levels',
+    step: 2,
+    min: 2,
+    max: 50,
+  });
+  colorPane.addInput(PARAMS, 'palette3', {
     label: 'Contrast palette',
     options: Object.assign({}, ...tome.getNames().map((n) => ({ [n]: n }))),
+  });
+  colorPane.addInput(PARAMS, 'palette3Levels', {
+    label: 'Levels',
+    step: 2,
+    min: 2,
+    max: 50,
   });
 
   const palette_button = colorPane.addButton({ title: 'Randomize Colors' });
@@ -98,12 +115,14 @@ export default function (resetFn: Function) {
     randomizePalettes();
     pane.refresh();
   });
+
+  pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
 }
 
 function randomizePalettes() {
-  PARAMS.mainPalette = tome.get().name;
-  PARAMS.secondPalette = tome.get().name;
-  PARAMS.contrastPalette = tome.get().name;
+  PARAMS.palette1 = tome.get().name;
+  PARAMS.palette2 = tome.get().name;
+  PARAMS.palette3 = tome.get().name;
 }
 
 function randomizeSeed() {

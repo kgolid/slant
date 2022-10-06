@@ -38,6 +38,11 @@ export function scaleCell(cell: Cell, s: number): Cell {
   return { ...cell, z: cell.z * s, xslope: cell.xslope * s, yslope: cell.yslope * s };
 }
 
+export function cornerPos(cell: Cell): Vec {
+  const cp = cellPos(cell);
+  return { ...cp, z: cell.z + cell.xslope + cell.yslope };
+}
+
 export function topShape(cell: Cell): Shape {
   const cp = cellPos(cell);
   const a = { ...cp, z: cell.z + cell.xslope + cell.yslope };
@@ -71,4 +76,34 @@ export function leftShape(cell: Cell): Shape {
   const d = { ...cp, z: 0 };
 
   return { a, b, c, d };
+}
+
+export function fullShape(cell: Cell): Vec[] {
+  const cp = cellPos(cell);
+
+  // Leaving out 'a' as its the center of the shape.
+  const b = { ...cp, x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope };
+  const c = {
+    ...cp,
+    x: cell.x + cell.w,
+    y: cell.y + cell.h,
+    z: cell.z - cell.xslope - cell.yslope,
+  };
+  const d = { ...cp, y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope };
+  const e = { ...cp, y: cell.y + cell.h, z: 0 };
+  const f = { ...cp, z: 0 };
+  const g = { ...cp, x: cell.x + cell.w, z: 0 };
+
+  return [b, c, d, e, f, g];
+}
+
+export function corners(cell: Cell): Vec[] {
+  const cp = cellPos(cell);
+
+  // Leaving out 'a' as its the center of the shape.
+  const b = { ...cp, x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope };
+  const d = { ...cp, y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope };
+  const f = { ...cp, z: 0 };
+
+  return [b, d, f];
 }

@@ -31,204 +31,6 @@
 
 	var P5 = /*@__PURE__*/getDefaultExportFromCjs(p5_min);
 
-	/******************************************************************************
-	Copyright (c) Microsoft Corporation.
-
-	Permission to use, copy, modify, and/or distribute this software for any
-	purpose with or without fee is hereby granted.
-
-	THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-	REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-	AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-	INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-	LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-	OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
-	***************************************************************************** */
-
-	var __assign = function() {
-	    __assign = Object.assign || function __assign(t) {
-	        for (var s, i = 1, n = arguments.length; i < n; i++) {
-	            s = arguments[i];
-	            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-	        }
-	        return t;
-	    };
-	    return __assign.apply(this, arguments);
-	};
-
-	function __spreadArray(to, from, pack) {
-	    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-	        if (ar || !(i in from)) {
-	            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-	            ar[i] = from[i];
-	        }
-	    }
-	    return to.concat(ar || Array.prototype.slice.call(from));
-	}
-
-	function createHash() {
-	    var alpha = '01234567890abcdef';
-	    var h = '';
-	    for (var i = 0; i < 64; i++) {
-	        h += alpha.charAt(Math.floor(Math.random() * alpha.length));
-	    }
-	    return h;
-	}
-
-	var PARAMS = {
-	    seed: createHash(),
-	    sunPosition: { x: 0, y: 0 },
-	    mouseControlsSun: false,
-	    sunHeight: 250,
-	    scale: 1.6,
-	    heightRange: 10,
-	    slopeRange: 0.1,
-	    noiseMagnitude: 3,
-	    noiseScale: 0.05,
-	    mainPalette: 'ducci_q',
-	    secondPalette: 'hilda04',
-	    contrastPalette: 'tundra4'
-	};
-
-	var Random = (function () {
-	    function Random(hash) {
-	        console.log('hello');
-	        this.useA = false;
-	        var sfc32 = function (uint128Hex) {
-	            var a = parseInt(uint128Hex.substring(0, 8), 16);
-	            var b = parseInt(uint128Hex.substring(8, 16), 16);
-	            var c = parseInt(uint128Hex.substring(16, 24), 16);
-	            var d = parseInt(uint128Hex.substring(24), 16);
-	            return function () {
-	                a |= 0;
-	                b |= 0;
-	                c |= 0;
-	                d |= 0;
-	                var t = (((a + b) | 0) + d) | 0;
-	                d = (d + 1) | 0;
-	                a = b ^ (b >>> 9);
-	                b = (c + (c << 3)) | 0;
-	                c = (c << 21) | (c >>> 11);
-	                c = (c + t) | 0;
-	                return (t >>> 0) / 4294967296;
-	            };
-	        };
-	        this.prngA = sfc32(hash.substring(0, 32));
-	        this.prngB = sfc32(hash.substring(32));
-	        for (var i = 0; i < 1e6; i += 2) {
-	            this.prngA();
-	            this.prngB();
-	        }
-	    }
-	    Random.prototype.random_dec = function () {
-	        this.useA = !this.useA;
-	        return this.useA ? this.prngA() : this.prngB();
-	    };
-	    return Random;
-	}());
-	var rand = new Random(PARAMS.seed);
-	function reset() {
-	    rand = new Random(PARAMS.seed);
-	}
-	var rng = brnd;
-	function brnd() {
-	    return rand.random_dec();
-	}
-
-	function getRandomCell(x, y, w, h, zmax, xsmax, ysmax) {
-	    var z = xsmax * w + ysmax * h + rng() * zmax;
-	    var xs = (rng() * 2 - 1) * xsmax * w;
-	    var ys = (rng() * 2 - 1) * ysmax * h;
-	    var flip = rng();
-	    var col = flip < 0.6 ? 0 : flip < 0.9 ? 1 : 2;
-	    return { x: x, y: y, z: z, w: w, h: h, xslope: xs, yslope: ys, col: col };
-	}
-	function cellPos(cell) {
-	    return { x: cell.x, y: cell.y, z: cell.z };
-	}
-	function topShape(cell) {
-	    var cp = cellPos(cell);
-	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
-	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
-	    var c = __assign(__assign({}, cp), { x: cell.x + cell.w, y: cell.y + cell.h, z: cell.z - cell.xslope - cell.yslope });
-	    var d = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
-	    return { a: a, b: b, c: c, d: d };
-	}
-	function rightShape(cell) {
-	    var cp = cellPos(cell);
-	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
-	    var b = __assign(__assign({}, cp), { z: 0 });
-	    var c = __assign(__assign({}, cp), { x: cell.x + cell.w, z: 0 });
-	    var d = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
-	    return { a: a, b: b, c: c, d: d };
-	}
-	function leftShape(cell) {
-	    var cp = cellPos(cell);
-	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
-	    var b = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
-	    var c = __assign(__assign({}, cp), { y: cell.y + cell.h, z: 0 });
-	    var d = __assign(__assign({}, cp), { z: 0 });
-	    return { a: a, b: b, c: c, d: d };
-	}
-
-	function add(a, b) {
-	    return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
-	}
-	function sub(a, b) {
-	    return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
-	}
-	function mul(a, s) {
-	    return { x: a.x * s, y: a.y * s, z: a.z * s };
-	}
-	function dotProduct(a, b) {
-	    return a.x * b.x + a.y * b.y + a.z * b.z;
-	}
-	function crossProduct(a, b) {
-	    var cx = a.y * b.z - a.z * b.y;
-	    var cy = a.z * b.x - a.x * b.z;
-	    var cz = a.x * b.y - a.y * b.x;
-	    return { x: cx, y: cy, z: cz };
-	}
-	function mag(a) {
-	    return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
-	}
-	function angleBetween(a, b) {
-	    return Math.acos(dotProduct(a, b) / (mag(a) * mag(b)));
-	}
-	function midpoint(a, b) {
-	    return add(a, mul(sub(b, a), 0.5));
-	}
-	function translateWithBase(pnt, bases) {
-	    var b1 = bases[0], b2 = bases[1], b3 = bases[2];
-	    return add(mul(b1, pnt.x), add(mul(b2, pnt.y), mul(b3, pnt.z)));
-	}
-
-	function angleBetweenPointAndShape(pnt, shape) {
-	    var planeCenter = centerOfShape(shape);
-	    var planeNormal = normalOfShape(shape);
-	    var cellToPointVec = sub(planeCenter, pnt);
-	    return angleBetween(planeNormal, cellToPointVec);
-	}
-	function normalOfShape(shape) {
-	    var xvec = sub(shape.b, shape.a);
-	    var yvec = sub(shape.d, shape.a);
-	    return crossProduct(xvec, yvec);
-	}
-	function centerOfShape(shape) {
-	    var ab = midpoint(shape.a, shape.b);
-	    var dc = midpoint(shape.d, shape.c);
-	    return midpoint(ab, dc);
-	}
-
-	var BRIGHTNESS = 1;
-	function illuminanceOfShape(sun, shape) {
-	    var angle = angleBetweenPointAndShape(sun, shape);
-	    if (angle < 0)
-	        console.log(angle);
-	    return BRIGHTNESS * Math.max(0, -Math.cos(angle));
-	}
-
 	var chroma = createCommonjsModule(function (module, exports) {
 	/**
 	 * chroma.js - JavaScript library for color conversions
@@ -5004,21 +4806,245 @@
 	  return palettes.map(p => p.name);
 	}
 
-	var number_of_colors = 50;
-	function drawGrid(p, bases, sun, cells, paletteNames) {
-	    var colorScales = paletteNames.map(function (n) { return createColorScale(n); });
+	/******************************************************************************
+	Copyright (c) Microsoft Corporation.
+
+	Permission to use, copy, modify, and/or distribute this software for any
+	purpose with or without fee is hereby granted.
+
+	THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+	REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+	AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+	INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+	LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+	OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+	PERFORMANCE OF THIS SOFTWARE.
+	***************************************************************************** */
+
+	var __assign = function() {
+	    __assign = Object.assign || function __assign(t) {
+	        for (var s, i = 1, n = arguments.length; i < n; i++) {
+	            s = arguments[i];
+	            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+	        }
+	        return t;
+	    };
+	    return __assign.apply(this, arguments);
+	};
+
+	function __spreadArray(to, from, pack) {
+	    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+	        if (ar || !(i in from)) {
+	            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+	            ar[i] = from[i];
+	        }
+	    }
+	    return to.concat(ar || Array.prototype.slice.call(from));
+	}
+
+	function createHash() {
+	    var alpha = '01234567890abcdef';
+	    var h = '';
+	    for (var i = 0; i < 64; i++) {
+	        h += alpha.charAt(Math.floor(Math.random() * alpha.length));
+	    }
+	    return h;
+	}
+
+	var PARAMS = {
+	    seed: createHash(),
+	    sunPosition: { x: 0, y: 0 },
+	    mouseControlsSun: false,
+	    sunHeight: 250,
+	    zoom: 1,
+	    heightRange: 10,
+	    slopeRange: 0.1,
+	    noiseMagnitude: 3,
+	    noiseScale: 0.05,
+	    palette1: 'ducci_q',
+	    palette1Levels: 50,
+	    palette2: 'hilda04',
+	    palette2Levels: 50,
+	    palette3: 'tundra4',
+	    palette3Levels: 50,
+	    stroke: true
+	};
+
+	var Random = (function () {
+	    function Random(hash) {
+	        this.useA = false;
+	        var sfc32 = function (uint128Hex) {
+	            var a = parseInt(uint128Hex.substring(0, 8), 16);
+	            var b = parseInt(uint128Hex.substring(8, 16), 16);
+	            var c = parseInt(uint128Hex.substring(16, 24), 16);
+	            var d = parseInt(uint128Hex.substring(24), 16);
+	            return function () {
+	                a |= 0;
+	                b |= 0;
+	                c |= 0;
+	                d |= 0;
+	                var t = (((a + b) | 0) + d) | 0;
+	                d = (d + 1) | 0;
+	                a = b ^ (b >>> 9);
+	                b = (c + (c << 3)) | 0;
+	                c = (c << 21) | (c >>> 11);
+	                c = (c + t) | 0;
+	                return (t >>> 0) / 4294967296;
+	            };
+	        };
+	        this.prngA = sfc32(hash.substring(0, 32));
+	        this.prngB = sfc32(hash.substring(32));
+	        for (var i = 0; i < 1e6; i += 2) {
+	            this.prngA();
+	            this.prngB();
+	        }
+	    }
+	    Random.prototype.random_dec = function () {
+	        this.useA = !this.useA;
+	        return this.useA ? this.prngA() : this.prngB();
+	    };
+	    return Random;
+	}());
+	var rand = new Random(PARAMS.seed);
+	function reset() {
+	    rand = new Random(PARAMS.seed);
+	}
+	var rng = brnd;
+	function brnd() {
+	    return rand.random_dec();
+	}
+
+	function getRandomCell(x, y, w, h, zmax, xsmax, ysmax) {
+	    var z = xsmax * w + ysmax * h + rng() * zmax;
+	    var xs = (rng() * 2 - 1) * xsmax * w;
+	    var ys = (rng() * 2 - 1) * ysmax * h;
+	    var flip = rng();
+	    var col = flip < 0.6 ? 0 : flip < 0.9 ? 1 : 2;
+	    return { x: x, y: y, z: z, w: w, h: h, xslope: xs, yslope: ys, col: col };
+	}
+	function cellPos(cell) {
+	    return { x: cell.x, y: cell.y, z: cell.z };
+	}
+	function cornerPos(cell) {
+	    var cp = cellPos(cell);
+	    return __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
+	}
+	function topShape(cell) {
+	    var cp = cellPos(cell);
+	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
+	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
+	    var c = __assign(__assign({}, cp), { x: cell.x + cell.w, y: cell.y + cell.h, z: cell.z - cell.xslope - cell.yslope });
+	    var d = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
+	    return { a: a, b: b, c: c, d: d };
+	}
+	function rightShape(cell) {
+	    var cp = cellPos(cell);
+	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
+	    var b = __assign(__assign({}, cp), { z: 0 });
+	    var c = __assign(__assign({}, cp), { x: cell.x + cell.w, z: 0 });
+	    var d = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
+	    return { a: a, b: b, c: c, d: d };
+	}
+	function leftShape(cell) {
+	    var cp = cellPos(cell);
+	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
+	    var b = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
+	    var c = __assign(__assign({}, cp), { y: cell.y + cell.h, z: 0 });
+	    var d = __assign(__assign({}, cp), { z: 0 });
+	    return { a: a, b: b, c: c, d: d };
+	}
+	function fullShape(cell) {
+	    var cp = cellPos(cell);
+	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
+	    var c = __assign(__assign({}, cp), { x: cell.x + cell.w, y: cell.y + cell.h, z: cell.z - cell.xslope - cell.yslope });
+	    var d = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
+	    var e = __assign(__assign({}, cp), { y: cell.y + cell.h, z: 0 });
+	    var f = __assign(__assign({}, cp), { z: 0 });
+	    var g = __assign(__assign({}, cp), { x: cell.x + cell.w, z: 0 });
+	    return [b, c, d, e, f, g];
+	}
+	function corners(cell) {
+	    var cp = cellPos(cell);
+	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
+	    var d = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
+	    var f = __assign(__assign({}, cp), { z: 0 });
+	    return [b, d, f];
+	}
+
+	function add(a, b) {
+	    return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
+	}
+	function sub(a, b) {
+	    return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+	}
+	function mul(a, s) {
+	    return { x: a.x * s, y: a.y * s, z: a.z * s };
+	}
+	function dotProduct(a, b) {
+	    return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+	function crossProduct(a, b) {
+	    var cx = a.y * b.z - a.z * b.y;
+	    var cy = a.z * b.x - a.x * b.z;
+	    var cz = a.x * b.y - a.y * b.x;
+	    return { x: cx, y: cy, z: cz };
+	}
+	function mag(a) {
+	    return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+	}
+	function angleBetween(a, b) {
+	    return Math.acos(dotProduct(a, b) / (mag(a) * mag(b)));
+	}
+	function midpoint(a, b) {
+	    return add(a, mul(sub(b, a), 0.5));
+	}
+	function translateWithBase(pnt, bases) {
+	    var b1 = bases[0], b2 = bases[1], b3 = bases[2];
+	    return add(mul(b1, pnt.x), add(mul(b2, pnt.y), mul(b3, pnt.z)));
+	}
+
+	function angleBetweenPointAndShape(pnt, shape) {
+	    var planeCenter = centerOfShape(shape);
+	    var planeNormal = normalOfShape(shape);
+	    var cellToPointVec = sub(planeCenter, pnt);
+	    return angleBetween(planeNormal, cellToPointVec);
+	}
+	function normalOfShape(shape) {
+	    var xvec = sub(shape.b, shape.a);
+	    var yvec = sub(shape.d, shape.a);
+	    return crossProduct(xvec, yvec);
+	}
+	function centerOfShape(shape) {
+	    var ab = midpoint(shape.a, shape.b);
+	    var dc = midpoint(shape.d, shape.c);
+	    return midpoint(ab, dc);
+	}
+
+	var BRIGHTNESS = 1;
+	function illuminanceOfShape(sun, shape) {
+	    var angle = angleBetweenPointAndShape(sun, shape);
+	    return BRIGHTNESS * Math.max(0, -Math.cos(angle));
+	}
+
+	function drawGrid(p, bases, sun, cells, paletteNames, paletteLevels, outline, scale) {
+	    var colorScales = paletteNames.map(function (n, i) { return createColorScale(n, paletteLevels[i]); });
 	    for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
 	        var cell = cells_1[_i];
-	        drawCell(p, sun, bases, cell, colorScales[cell.col]);
+	        drawCell(p, sun, bases, cell, colorScales[cell.col], outline, scale);
 	    }
 	}
-	function drawCell(p, sun, bases, cell, cols) {
+	function drawCell(p, sun, bases, cell, cols, outline, scale) {
 	    drawShape(p, bases, sun, topShape(cell), cols);
 	    drawShape(p, bases, sun, leftShape(cell), cols);
 	    drawShape(p, bases, sun, rightShape(cell), cols);
+	    if (outline) {
+	        outlineCell(p, bases, fullShape(cell), '#000', (scale * 3) / 2);
+	        innerLinesCell(p, bases, corners(cell), cornerPos(cell), '#000', scale / 2);
+	    }
 	}
 	function drawShape(p, bases, sun, shape, cols) {
-	    p.fill(cols[Math.floor(illuminanceOfShape(sun, shape) * number_of_colors)]);
+	    p.fill(cols[Math.floor(illuminanceOfShape(sun, shape) * cols.length)]);
+	    p.noStroke();
 	    var vertices = [shape.a, shape.b, shape.c, shape.d];
 	    p.beginShape();
 	    for (var _i = 0, vertices_1 = vertices; _i < vertices_1.length; _i++) {
@@ -5026,12 +5052,35 @@
 	        var t = translateWithBase(vertex, bases);
 	        p.vertex(t.x, t.y);
 	    }
-	    p.endShape();
+	    p.endShape(p.CLOSE);
 	}
-	function createColorScale(name) {
+	function outlineCell(p, bases, vertices, col, weight) {
+	    p.stroke(col);
+	    p.strokeWeight(weight);
+	    p.noFill();
+	    p.beginShape();
+	    for (var _i = 0, vertices_2 = vertices; _i < vertices_2.length; _i++) {
+	        var vertex = vertices_2[_i];
+	        var t = translateWithBase(vertex, bases);
+	        p.vertex(t.x, t.y);
+	    }
+	    p.endShape(p.CLOSE);
+	}
+	function innerLinesCell(p, bases, vertices, center, col, weight) {
+	    p.stroke(col);
+	    p.strokeWeight(weight);
+	    p.noFill();
+	    var c = translateWithBase(center, bases);
+	    for (var _i = 0, vertices_3 = vertices; _i < vertices_3.length; _i++) {
+	        var vertex = vertices_3[_i];
+	        var t = translateWithBase(vertex, bases);
+	        p.line(c.x, c.y, t.x, t.y);
+	    }
+	}
+	function createColorScale(name, levels) {
 	    var palette = get(name).colors;
 	    palette.sort(function (a, b) { return chroma(a).luminance() - chroma(b).luminance(); });
-	    return chroma.scale(palette).mode('lch').colors(number_of_colors);
+	    return chroma.scale(palette).mode('lch').colors(levels);
 	}
 
 	/*
@@ -5193,7 +5242,7 @@
 	        var ch = ypattern[i % ypattern.length];
 	        for (var j = 0; j < numberOfCells.x; j++) {
 	            var cw = xpattern[j % xpattern.length];
-	            var hdelta = 1 + Math.max(0, noise(i * noiseScale, j * noiseScale)) * noiseMagnitude;
+	            var hdelta = 1 + Math.max(0, noise(accx * noiseScale * 0.02, accy * noiseScale * 0.02)) * noiseMagnitude;
 	            cells.push(getRandomCell(accx, accy, cw + 2, ch + 2, hdelta * heightRange, hdelta * slopeRange, hdelta * slopeRange));
 	            accx += cw;
 	        }
@@ -12678,7 +12727,6 @@
 	    sunPane.addInput(PARAMS, 'sunPosition', {
 	        label: 'Sun position',
 	        picker: 'inline',
-	        expanded: true,
 	        x: {
 	            step: 0.1,
 	            min: -1,
@@ -12693,13 +12741,13 @@
 	    sunPane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
 	    sunPane.addInput(PARAMS, 'sunHeight', {
 	        label: 'Sun height',
-	        step: 50,
+	        step: 25,
 	        min: 50,
 	        max: 500
 	    });
 	    var cellPane = pane.addFolder({ title: 'Cell Settings' });
-	    cellPane.addInput(PARAMS, 'scale', {
-	        label: 'Scale',
+	    cellPane.addInput(PARAMS, 'zoom', {
+	        label: 'Zoom',
 	        step: 0.1,
 	        min: 0.6,
 	        max: 2.5
@@ -12734,62 +12782,80 @@
 	        max: 0.1
 	    });
 	    var colorPane = pane.addFolder({ title: 'Color Settings' }).on('change', function () { return resetFn(); });
-	    colorPane.addInput(PARAMS, 'mainPalette', {
+	    colorPane.addInput(PARAMS, 'palette1', {
 	        label: 'Main palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
-	    colorPane.addInput(PARAMS, 'secondPalette', {
+	    colorPane.addInput(PARAMS, 'palette1Levels', {
+	        label: 'Levels',
+	        step: 2,
+	        min: 2,
+	        max: 50
+	    });
+	    colorPane.addInput(PARAMS, 'palette2', {
 	        label: 'Secondary palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
-	    colorPane.addInput(PARAMS, 'contrastPalette', {
+	    colorPane.addInput(PARAMS, 'palette2Levels', {
+	        label: 'Levels',
+	        step: 2,
+	        min: 2,
+	        max: 50
+	    });
+	    colorPane.addInput(PARAMS, 'palette3', {
 	        label: 'Contrast palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
 	            var _a;
 	            return (_a = {}, _a[n] = n, _a);
 	        }), false))
 	    });
+	    colorPane.addInput(PARAMS, 'palette3Levels', {
+	        label: 'Levels',
+	        step: 2,
+	        min: 2,
+	        max: 50
+	    });
 	    var palette_button = colorPane.addButton({ title: 'Randomize Colors' });
 	    palette_button.on('click', function () {
 	        randomizePalettes();
 	        pane.refresh();
 	    });
+	    pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
 	}
 	function randomizePalettes() {
-	    PARAMS.mainPalette = get().name;
-	    PARAMS.secondPalette = get().name;
-	    PARAMS.contrastPalette = get().name;
+	    PARAMS.palette1 = get().name;
+	    PARAMS.palette2 = get().name;
+	    PARAMS.palette3 = get().name;
 	}
 	function randomizeSeed() {
 	    PARAMS.seed = createHash();
 	}
 
 	var sketch = function (p) {
-	    var DIMX = 800;
-	    var DIMY = 800;
+	    var DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71;
+	    var DIMY = Math.min(window.innerHeight, window.innerWidth);
 	    var CENTER = { x: DIMX / 2, y: DIMY / 2 };
-	    var XPATTERN = [50, 20, 10];
-	    var YPATTERN = [10, 30];
+	    var scale = DIMX / 1200;
+	    var XPATTERN = [30, 40, 10];
+	    var YPATTERN = [10, 40, 30];
 	    var XREPS = 30;
-	    var YREPS = 60;
+	    var YREPS = 30;
 	    var TOTALDIMX = XPATTERN.reduce(function (a, c) { return a + c; }) * XREPS;
 	    var TOTALDIMY = YPATTERN.reduce(function (a, c) { return a + c; }) * YREPS;
 	    var NCELLSX = XPATTERN.length * XREPS;
 	    var NCELLSY = YPATTERN.length * YREPS;
-	    var bases;
-	    var sun;
 	    var grid;
 	    p.setup = function () {
 	        p.createCanvas(DIMX, DIMY);
 	        p.background(0, 50, 50);
 	        p.noStroke();
-	        p.pixelDensity(2);
+	        p.pixelDensity(4);
 	        p.fill(255);
 	        createGUI(resetGrid);
 	        resetGrid();
@@ -12797,39 +12863,53 @@
 	    p.draw = function () {
 	        p.background(255);
 	        p.translate(CENTER.x, CENTER.y);
-	        sun = {
-	            x: PARAMS.mouseControlsSun ? p.mouseX - CENTER.x : (PARAMS.sunPosition.x * DIMX) / 2,
-	            y: PARAMS.mouseControlsSun
-	                ? p.mouseY - CENTER.y - PARAMS.sunHeight
-	                : (PARAMS.sunPosition.y * DIMY) / 2 - PARAMS.sunHeight,
-	            z: PARAMS.sunHeight
-	        };
-	        var invbases = getInverseBases().map(function (ibs) { return mul(ibs, 1 / PARAMS.scale); });
-	        drawGrid(p, bases.map(function (bs) { return mul(bs, PARAMS.scale); }), translateWithBase(sun, invbases), grid, [PARAMS.mainPalette, PARAMS.secondPalette, PARAMS.contrastPalette]);
+	        var bases = getBases(PARAMS.zoom * scale);
+	        var invbases = getInverseBases(1 / PARAMS.zoom);
+	        var sun = translateWithBase(getSunPos(), invbases);
+	        var palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
+	        var paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
+	        drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale);
 	    };
 	    p.keyPressed = function () {
 	        if (p.keyCode === 80)
-	            p.saveCanvas('Slant_' + Date.now(), 'jpeg');
+	            p.saveCanvas('Slant_' +
+	                PARAMS.palette1 +
+	                '_' +
+	                PARAMS.palette2 +
+	                '_' +
+	                PARAMS.palette3 +
+	                '_' +
+	                PARAMS.seed, 'png');
 	    };
 	    function resetGrid() {
 	        reset();
-	        bases = getBases();
 	        grid = createGrid({ x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 }, { x: NCELLSX, y: NCELLSY, z: 0 }, XPATTERN, YPATTERN, PARAMS.heightRange, PARAMS.slopeRange, PARAMS.noiseMagnitude, PARAMS.noiseScale);
 	    }
-	    function getBases() {
+	    function getSunPos() {
+	        var xpos = PARAMS.mouseControlsSun ? p.mouseX - CENTER.x : (PARAMS.sunPosition.x * DIMX) / 2;
+	        var ypos = PARAMS.mouseControlsSun
+	            ? p.mouseY - CENTER.y - PARAMS.sunHeight
+	            : (PARAMS.sunPosition.y * DIMY) / 2 - PARAMS.sunHeight;
+	        return {
+	            x: xpos,
+	            y: ypos,
+	            z: PARAMS.sunHeight
+	        };
+	    }
+	    function getBases(scale) {
 	        var PHI1 = -Math.PI / 6;
 	        var PHI2 = -(5 * Math.PI) / 6;
 	        var PHI3 = -Math.PI / 2;
 	        var b1 = { x: Math.cos(PHI1), y: Math.sin(PHI1), z: 0 };
 	        var b2 = { x: Math.cos(PHI2), y: Math.sin(PHI2), z: 0 };
 	        var b3 = { x: Math.cos(PHI3), y: Math.sin(PHI3), z: 1 };
-	        return [b1, b2, b3];
+	        return [b1, b2, b3].map(function (b) { return mul(b, scale); });
 	    }
-	    function getInverseBases() {
+	    function getInverseBases(scale) {
 	        var b1 = { x: 1 / Math.sqrt(3), y: -1 / Math.sqrt(3), z: 0 };
 	        var b2 = { x: -1, y: -1, z: 0 };
 	        var b3 = { x: -1, y: -1, z: 1 };
-	        return [b1, b2, b3];
+	        return [b1, b2, b3].map(function (b) { return mul(b, scale); });
 	    }
 	};
 	new P5(sketch);
