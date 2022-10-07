@@ -1,7 +1,7 @@
 import P5 from 'p5';
 import chroma from 'chroma-js';
 import * as tome from 'chromotome';
-import { cornerPos, corners, fullShape, leftShape, rightShape, topShape } from './cell';
+import { cornerPos, corners, frontShape, fullShape, leftShape, rightShape, topShape } from './cell';
 import { Cell, Shape, Vec } from './interfaces';
 import { illuminanceOfShape } from './light';
 import { translateWithBase } from './vector';
@@ -32,11 +32,14 @@ export function drawCell(
   outline: boolean,
   scale: number
 ): void {
-  drawShape(p, bases, sun, topShape(cell), cols);
+  const top = topShape(cell);
+  const highFront = translateWithBase(top.a, bases).y < translateWithBase(top.c, bases).y;
+  if (!highFront) drawShape(p, bases, sun, topShape(cell), cols);
   drawShape(p, bases, sun, leftShape(cell), cols);
   drawShape(p, bases, sun, rightShape(cell), cols);
   if (outline) {
-    outlineCell(p, bases, fullShape(cell), '#000', (scale * 3) / 2);
+    if (!highFront) outlineCell(p, bases, fullShape(cell), '#000', (scale * 3) / 2);
+    else outlineCell(p, bases, frontShape(cell), '#000', (scale * 3) / 2);
     innerLinesCell(p, bases, corners(cell), cornerPos(cell), '#000', scale / 2);
   }
 }

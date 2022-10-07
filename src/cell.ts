@@ -81,7 +81,6 @@ export function leftShape(cell: Cell): Shape {
 export function fullShape(cell: Cell): Vec[] {
   const cp = cellPos(cell);
 
-  // Leaving out 'a' as its the center of the shape.
   const b = { ...cp, x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope };
   const c = {
     ...cp,
@@ -95,6 +94,20 @@ export function fullShape(cell: Cell): Vec[] {
   const g = { ...cp, x: cell.x + cell.w, z: 0 };
 
   return [b, c, d, e, f, g];
+}
+
+export function frontShape(cell: Cell): Vec[] {
+  const cp = cellPos(cell);
+
+  const b = { ...cp, x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope };
+  const a = { ...cp, z: cell.z + cell.xslope + cell.yslope };
+
+  const d = { ...cp, y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope };
+  const e = { ...cp, y: cell.y + cell.h, z: 0 };
+  const f = { ...cp, z: 0 };
+  const g = { ...cp, x: cell.x + cell.w, z: 0 };
+
+  return [b, a, d, e, f, g];
 }
 
 export function corners(cell: Cell): Vec[] {
