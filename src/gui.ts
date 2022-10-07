@@ -110,6 +110,13 @@ export default function (resetFn: Function) {
     max: 50,
   });
 
+  colorPane.addInput(PARAMS, 'gamma', {
+    label: 'Gamma',
+    step: 0.2,
+    min: -2,
+    max: 2,
+  });
+
   const palette_button = colorPane.addButton({ title: 'Randomize Colors' });
   palette_button.on('click', () => {
     randomizePalettes();

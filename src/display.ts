@@ -5,6 +5,7 @@ import { cornerPos, corners, frontShape, fullShape, leftShape, rightShape, topSh
 import { Cell, Shape, Vec } from './interfaces';
 import { illuminanceOfShape } from './light';
 import { translateWithBase } from './vector';
+import PARAMS from './params';
 
 export function drawGrid(
   p: P5,
@@ -92,5 +93,9 @@ function innerLinesCell(
 function createColorScale(name: string, levels: number) {
   const palette = tome.get(name).colors;
   palette.sort((a: string, b: string) => chroma(a).luminance() - chroma(b).luminance());
-  return chroma.scale(palette).mode('lch').colors(levels);
+  return chroma
+    .scale(palette)
+    .mode('lch')
+    .gamma(Math.pow(2, -PARAMS.gamma))
+    .colors(levels * palette.length);
 }

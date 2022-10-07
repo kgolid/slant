@@ -17,6 +17,7 @@ let PARAMS: ParameterList = {
   palette2Levels: 50,
   palette3: 'tundra4',
   palette3Levels: 50,
+  gamma: 0,
   stroke: true,
 };
 

@@ -46,5 +46,8 @@ export interface ParameterList {
   palette2Levels: number;
   palette3: string;
   palette3Levels: number;
+
+  gamma: number;
+
   stroke: boolean;
 }
