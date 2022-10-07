@@ -85,9 +85,9 @@ export default function (resetFn: Function) {
   });
   colorPane.addInput(PARAMS, 'palette1Levels', {
     label: 'Levels',
-    step: 2,
-    min: 2,
-    max: 50,
+    step: 1,
+    min: 1,
+    max: 10,
   });
   colorPane.addInput(PARAMS, 'palette2', {
     label: 'Secondary palette',
@@ -95,9 +95,9 @@ export default function (resetFn: Function) {
   });
   colorPane.addInput(PARAMS, 'palette2Levels', {
     label: 'Levels',
-    step: 2,
-    min: 2,
-    max: 50,
+    step: 1,
+    min: 1,
+    max: 10,
   });
   colorPane.addInput(PARAMS, 'palette3', {
     label: 'Contrast palette',
@@ -105,9 +105,9 @@ export default function (resetFn: Function) {
   });
   colorPane.addInput(PARAMS, 'palette3Levels', {
     label: 'Levels',
-    step: 2,
-    min: 2,
-    max: 50,
+    step: 1,
+    min: 1,
+    max: 10,
   });
 
   colorPane.addInput(PARAMS, 'gamma', {
