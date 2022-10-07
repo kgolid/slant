@@ -35,6 +35,7 @@ export function drawCell(
 ): void {
   const top = topShape(cell);
   const highFront = translateWithBase(top.a, bases).y < translateWithBase(top.c, bases).y;
+
   if (!highFront) drawShape(p, bases, sun, topShape(cell), cols);
   drawShape(p, bases, sun, leftShape(cell), cols);
   drawShape(p, bases, sun, rightShape(cell), cols);

@@ -8,20 +8,16 @@ import createGUI from './gui';
 import PARAMS from './params';
 
 let sketch = function (p: P5) {
-  const DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71;
+  const DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71; //A4
   const DIMY = Math.min(window.innerHeight, window.innerWidth);
   const CENTER = { x: DIMX / 2, y: DIMY / 2 };
 
   const scale = DIMX / 1200;
 
-  const XPATTERN = [30, 40, 10];
-  const YPATTERN = [10, 40, 30];
+  const XPATTERN = [30, 40, 10]; //[50, 20, 10] [70,10]
+  const YPATTERN = [10, 40, 30]; // [10,30]
   const XREPS = 30;
   const YREPS = 30;
-  const TOTALDIMX = XPATTERN.reduce((a, c) => a + c) * XREPS;
-  const TOTALDIMY = YPATTERN.reduce((a, c) => a + c) * YREPS;
-  const NCELLSX = XPATTERN.length * XREPS;
-  const NCELLSY = YPATTERN.length * YREPS;
 
   let grid: Cell[];
 
@@ -32,8 +28,8 @@ let sketch = function (p: P5) {
     p.pixelDensity(4);
     p.fill(255);
 
-    createGUI(resetGrid);
     resetGrid();
+    createGUI(resetGrid);
   };
 
   p.draw = function () {
@@ -46,7 +42,7 @@ let sketch = function (p: P5) {
     const palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
     const paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
 
-    drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale);
+    drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
   };
 
   p.keyPressed = function () {
@@ -66,16 +62,7 @@ let sketch = function (p: P5) {
 
   function resetGrid() {
     reset();
-    grid = createGrid(
-      { x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 },
-      { x: NCELLSX, y: NCELLSY, z: 0 },
-      XPATTERN,
-      YPATTERN,
-      PARAMS.heightRange,
-      PARAMS.slopeRange,
-      PARAMS.noiseMagnitude,
-      PARAMS.noiseScale
-    );
+    grid = createGrid();
   }
 
   function getSunPos(): Vec {

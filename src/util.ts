@@ -6,3 +6,7 @@ export function createHash() {
   }
   return h;
 }
+
+export function sum(array: number[]): number {
+  return array.reduce((a, c) => a + c);
+}

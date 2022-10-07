@@ -4856,6 +4856,9 @@
 	    }
 	    return h;
 	}
+	function sum(array) {
+	    return array.reduce(function (a, c) { return a + c; });
+	}
 
 	var PARAMS = {
 	    seed: createHash(),
@@ -4865,6 +4868,10 @@
 	    zoom: 1,
 	    heightRange: 10,
 	    slopeRange: 0.1,
+	    xPattern: '5[40]',
+	    yPattern: '5[40]',
+	    xSlopePattern: '1[13]',
+	    ySlopePattern: '1[13]',
 	    noiseMagnitude: 3,
 	    noiseScale: 0.05,
 	    palette1: 'ducci_q',
@@ -4921,13 +4928,20 @@
 	    return rand.random_dec();
 	}
 
-	function getRandomCell(x, y, w, h, zmax, xsmax, ysmax) {
-	    var z = xsmax * w + ysmax * h + rng() * zmax;
-	    var xs = (rng() * 2 - 1) * xsmax * w;
-	    var ys = (rng() * 2 - 1) * ysmax * h;
+	function getCell(x, y, w, h, z, xslope, yslope) {
+	    var zz = Math.abs(xslope * w) + Math.abs(yslope * h) + z + 1;
 	    var flip = rng();
 	    var col = flip < 0.6 ? 0 : flip < 0.9 ? 1 : 2;
-	    return { x: x, y: y, z: z, w: w, h: h, xslope: xs, yslope: ys, col: col };
+	    return {
+	        x: x,
+	        y: y,
+	        z: zz,
+	        w: w,
+	        h: h,
+	        xslope: xslope * w,
+	        yslope: yslope * h,
+	        col: col
+	    };
 	}
 	function cellPos(cell) {
 	    return { x: cell.x, y: cell.y, z: cell.z };
@@ -5260,22 +5274,93 @@
 	    return p;
 	}
 
-	function createGrid(offset, numberOfCells, xpattern, ypattern, heightRange, slopeRange, noiseMagnitude, noiseScale) {
+	function parsePattern(pattern) {
+	    return pattern.split('_').map(function (segment) {
+	        var reps = parseInt(segment.at(0));
+	        var dims = segment
+	            .slice(2, -1)
+	            .split(':')
+	            .map(function (i) { return parseFloat(i); });
+	        return { reps: reps, dims: dims };
+	    });
+	}
+	function createDimPattern() {
+	    var numberOfSegments = 1 + Math.floor(rng() * 4);
+	    var segments = [];
+	    for (var i = 0; i < numberOfSegments; i++) {
+	        var numberOfReps = 1 + Math.floor(rng() * 8);
+	        var numberOfDims = 1 + Math.floor(rng() * 3);
+	        var dims = [];
+	        for (var j = 0; j < numberOfDims; j++) {
+	            dims.push(10 + Math.floor(rng() * 70));
+	        }
+	        var segment = numberOfReps + '[' + dims.join(':') + ']';
+	        segments.push(segment);
+	    }
+	    return segments.join('_');
+	}
+	function createSlopePattern() {
+	    var numberOfSegments = 1 + Math.floor(rng() * 4);
+	    var segments = [];
+	    for (var i = 0; i < numberOfSegments; i++) {
+	        var numberOfReps = 1 + Math.floor(rng() * 3);
+	        var numberOfSlopes = 1 + Math.floor(rng() * 8);
+	        var slopeProfiles = [];
+	        for (var j = 0; j < numberOfSlopes; j++) {
+	            var slope = Math.round((rng() * 2 - 1) * 1000) / 1000;
+	            var wildcard = rng() < 0.2;
+	            slopeProfiles.push(wildcard ? 13 : slope);
+	        }
+	        var segment = numberOfReps + '[' + slopeProfiles.join(':') + ']';
+	        segments.push(segment);
+	    }
+	    return segments.join('_');
+	}
+
+	var TOTAL_DIM = 3000;
+	function createGrid() {
 	    var noise = createNoise2D(rng);
+	    var xPattern = expandDimPattern(PARAMS.xPattern, TOTAL_DIM);
+	    var yPattern = expandDimPattern(PARAMS.yPattern, TOTAL_DIM);
+	    var xSlopePattern = expandSlopePattern(PARAMS.xSlopePattern, xPattern.length);
+	    var ySlopePattern = expandSlopePattern(PARAMS.ySlopePattern, yPattern.length);
+	    var xDim = sum(xPattern);
+	    var yDim = sum(yPattern);
 	    var cells = [];
-	    var accy = offset.y;
-	    for (var i = 0; i < numberOfCells.y; i++) {
-	        var accx = offset.x;
-	        var ch = ypattern[i % ypattern.length];
-	        for (var j = 0; j < numberOfCells.x; j++) {
-	            var cw = xpattern[j % xpattern.length];
-	            var hdelta = 1 + Math.max(0, noise(accx * noiseScale * 0.02, accy * noiseScale * 0.02)) * noiseMagnitude;
-	            cells.push(getRandomCell(accx, accy, cw + 2, ch + 2, hdelta * heightRange, hdelta * slopeRange, hdelta * slopeRange));
+	    var accy = -yDim / 2;
+	    for (var i = 0; i < yPattern.length; i++) {
+	        var accx = -xDim / 2;
+	        var ch = yPattern[i];
+	        for (var j = 0; j < xPattern.length; j++) {
+	            var cw = xPattern[j];
+	            var nVal = noise(accx * PARAMS.noiseScale * 0.02, accy * PARAMS.noiseScale * 0.02);
+	            var nHeight = 1 + Math.max(0, nVal) * PARAMS.noiseMagnitude;
+	            var xSlope = xSlopePattern[j] > 2 ? rng() * 2 - 1 : xSlopePattern[j];
+	            var ySlope = ySlopePattern[i] > 2 ? rng() * 2 - 1 : ySlopePattern[i];
+	            cells.push(getCell(accx, accy, cw + 2, ch + 2, nHeight * PARAMS.heightRange, ySlope * nHeight * PARAMS.slopeRange, xSlope * nHeight * PARAMS.slopeRange));
 	            accx += cw;
 	        }
 	        accy += ch;
 	    }
+	    console.log(cells);
 	    return cells.reverse();
+	}
+	function expandDimPattern(pattern, dim) {
+	    var segments = parsePattern(pattern);
+	    var expanded = segments.flatMap(function (seg) { return __spreadArray([], new Array(seg.reps), true).flatMap(function () { return seg.dims; }); });
+	    var i = 0;
+	    while (sum(expanded) < dim)
+	        expanded.push(expanded[i++]);
+	    return expanded;
+	}
+	function expandSlopePattern(pattern, num) {
+	    var segments = parsePattern(pattern);
+	    console.log(segments);
+	    var expanded = segments.flatMap(function (seg) { return __spreadArray([], new Array(seg.reps), true).flatMap(function () { return seg.dims; }); });
+	    var i = 0;
+	    while (expanded.length < num)
+	        expanded.push(expanded[i++]);
+	    return expanded;
 	}
 
 	var tweakpane = createCommonjsModule(function (module, exports) {
@@ -12779,6 +12864,24 @@
 	        min: 0.6,
 	        max: 2.5
 	    });
+	    var patternPane = pane.addFolder({ title: 'Pattern Settings' }).on('change', function () { return resetFn(); });
+	    patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
+	    patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
+	    var pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
+	    pattern_button.on('click', function () {
+	        randomizePattern();
+	        pane.refresh();
+	    });
+	    var slopePatternPane = pane
+	        .addFolder({ title: 'Slope Pattern Settings' })
+	        .on('change', function () { return resetFn(); });
+	    slopePatternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
+	    slopePatternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
+	    var slope_pattern_button = slopePatternPane.addButton({ title: 'Randomize Slope Pattern' });
+	    slope_pattern_button.on('click', function () {
+	        randomizeSlopePattern();
+	        pane.refresh();
+	    });
 	    cellPane
 	        .addInput(PARAMS, 'heightRange', {
 	        label: 'Height Range',
@@ -12869,20 +12972,20 @@
 	function randomizeSeed() {
 	    PARAMS.seed = createHash();
 	}
+	function randomizePattern() {
+	    PARAMS.xPattern = createDimPattern();
+	    PARAMS.yPattern = createDimPattern();
+	}
+	function randomizeSlopePattern() {
+	    PARAMS.xSlopePattern = createSlopePattern();
+	    PARAMS.ySlopePattern = createSlopePattern();
+	}
 
 	var sketch = function (p) {
 	    var DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71;
 	    var DIMY = Math.min(window.innerHeight, window.innerWidth);
 	    var CENTER = { x: DIMX / 2, y: DIMY / 2 };
 	    var scale = DIMX / 1200;
-	    var XPATTERN = [30, 40, 10];
-	    var YPATTERN = [10, 40, 30];
-	    var XREPS = 30;
-	    var YREPS = 30;
-	    var TOTALDIMX = XPATTERN.reduce(function (a, c) { return a + c; }) * XREPS;
-	    var TOTALDIMY = YPATTERN.reduce(function (a, c) { return a + c; }) * YREPS;
-	    var NCELLSX = XPATTERN.length * XREPS;
-	    var NCELLSY = YPATTERN.length * YREPS;
 	    var grid;
 	    p.setup = function () {
 	        p.createCanvas(DIMX, DIMY);
@@ -12890,8 +12993,8 @@
 	        p.noStroke();
 	        p.pixelDensity(4);
 	        p.fill(255);
-	        createGUI(resetGrid);
 	        resetGrid();
+	        createGUI(resetGrid);
 	    };
 	    p.draw = function () {
 	        p.background(255);
@@ -12901,7 +13004,7 @@
 	        var sun = translateWithBase(getSunPos(), invbases);
 	        var palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
 	        var paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
-	        drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale);
+	        drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
 	    };
 	    p.keyPressed = function () {
 	        if (p.keyCode === 80)
@@ -12916,7 +13019,7 @@
 	    };
 	    function resetGrid() {
 	        reset();
-	        grid = createGrid({ x: -TOTALDIMX / 2, y: -TOTALDIMY / 2, z: 0 }, { x: NCELLSX, y: NCELLSY, z: 0 }, XPATTERN, YPATTERN, PARAMS.heightRange, PARAMS.slopeRange, PARAMS.noiseMagnitude, PARAMS.noiseScale);
+	        grid = createGrid();
 	    }
 	    function getSunPos() {
 	        var xpos = PARAMS.mouseControlsSun ? p.mouseX - CENTER.x : (PARAMS.sunPosition.x * DIMX) / 2;

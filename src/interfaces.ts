@@ -28,6 +28,11 @@ export interface Cell {
   col: number;
 }
 
+export interface Segment {
+  reps: number;
+  dims: number[];
+}
+
 export interface ParameterList {
   seed: string;
   sunPosition: { x: number; y: number };
@@ -35,8 +40,15 @@ export interface ParameterList {
   sunHeight: number;
   zoom: number;
 
+  xPattern: string;
+  yPattern: string;
+
+  xSlopePattern: string;
+  ySlopePattern: string;
+
   heightRange: number;
   slopeRange: number;
+
   noiseMagnitude: number;
   noiseScale: number;
 

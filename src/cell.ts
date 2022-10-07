@@ -1,16 +1,29 @@
 import { Cell, Shape, Vec } from './interfaces';
 import { rng } from './random';
 
-export const getCell = (
+export function getCell(
   x: number,
   y: number,
   w: number,
   h: number,
   z: number,
   xslope: number,
-  yslope: number,
-  col: number
-): Cell => ({ x, y, z, w, h, xslope: xslope * w, yslope: yslope * h, col });
+  yslope: number
+): Cell {
+  const zz = Math.abs(xslope * w) + Math.abs(yslope * h) + z + 1;
+  const flip = rng();
+  const col = flip < 0.6 ? 0 : flip < 0.9 ? 1 : 2;
+  return {
+    x,
+    y,
+    z: zz,
+    w,
+    h,
+    xslope: xslope * w,
+    yslope: yslope * h,
+    col,
+  };
+}
 
 export function getRandomCell(
   x: number,

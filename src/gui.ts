@@ -2,6 +2,7 @@ import { Pane } from 'tweakpane';
 import * as tome from 'chromotome';
 import PARAMS from './params';
 import { createHash } from './util';
+import { createDimPattern, createSlopePattern } from './pattern';
 
 export default function (resetFn: Function) {
   const pane = new Pane({ title: 'Slant Settings' });
@@ -46,6 +47,27 @@ export default function (resetFn: Function) {
     min: 0.6,
     max: 2.5,
   });
+
+  const patternPane = pane.addFolder({ title: 'Pattern Settings' }).on('change', () => resetFn());
+  patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
+  patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
+  const pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
+  pattern_button.on('click', () => {
+    randomizePattern();
+    pane.refresh();
+  });
+
+  const slopePatternPane = pane
+    .addFolder({ title: 'Slope Pattern Settings' })
+    .on('change', () => resetFn());
+  slopePatternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
+  slopePatternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
+  const slope_pattern_button = slopePatternPane.addButton({ title: 'Randomize Slope Pattern' });
+  slope_pattern_button.on('click', () => {
+    randomizeSlopePattern();
+    pane.refresh();
+  });
+
   cellPane
     .addInput(PARAMS, 'heightRange', {
       label: 'Height Range',
@@ -134,4 +156,14 @@ function randomizePalettes() {
 
 function randomizeSeed() {
   PARAMS.seed = createHash();
+}
+
+function randomizePattern() {
+  PARAMS.xPattern = createDimPattern();
+  PARAMS.yPattern = createDimPattern();
+}
+
+function randomizeSlopePattern() {
+  PARAMS.xSlopePattern = createSlopePattern();
+  PARAMS.ySlopePattern = createSlopePattern();
 }
