@@ -4536,6 +4536,12 @@
 	    background: '#dfc792',
 	  },
 	  {
+	    name: 'forevent',
+	    colors:['#eadfcb','#b8d7d3','#c6b999','#ceaf65','#7b9479', '#2d509a', '#efbfb9', '#e35726', '#303134'],
+	    stroke:'',
+	    background:'#efebe1'
+	  },
+	  {
 	    name: 'nowak',
 	    colors: ['#e85b30', '#ef9e28', '#c6ac71', '#e0c191', '#3f6279', '#ee854e', '#180305'],
 	    stroke: '#180305',
@@ -4862,11 +4868,12 @@
 	    noiseMagnitude: 3,
 	    noiseScale: 0.05,
 	    palette1: 'ducci_q',
-	    palette1Levels: 50,
+	    palette1Levels: 3,
 	    palette2: 'hilda04',
-	    palette2Levels: 50,
+	    palette2Levels: 3,
 	    palette3: 'tundra4',
-	    palette3Levels: 50,
+	    palette3Levels: 3,
+	    gamma: 0,
 	    stroke: true
 	};
 
@@ -4963,6 +4970,16 @@
 	    var g = __assign(__assign({}, cp), { x: cell.x + cell.w, z: 0 });
 	    return [b, c, d, e, f, g];
 	}
+	function frontShape(cell) {
+	    var cp = cellPos(cell);
+	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
+	    var a = __assign(__assign({}, cp), { z: cell.z + cell.xslope + cell.yslope });
+	    var d = __assign(__assign({}, cp), { y: cell.y + cell.h, z: cell.z + cell.xslope - cell.yslope });
+	    var e = __assign(__assign({}, cp), { y: cell.y + cell.h, z: 0 });
+	    var f = __assign(__assign({}, cp), { z: 0 });
+	    var g = __assign(__assign({}, cp), { x: cell.x + cell.w, z: 0 });
+	    return [b, a, d, e, f, g];
+	}
 	function corners(cell) {
 	    var cp = cellPos(cell);
 	    var b = __assign(__assign({}, cp), { x: cell.x + cell.w, z: cell.z - cell.xslope + cell.yslope });
@@ -5034,11 +5051,17 @@
 	    }
 	}
 	function drawCell(p, sun, bases, cell, cols, outline, scale) {
-	    drawShape(p, bases, sun, topShape(cell), cols);
+	    var top = topShape(cell);
+	    var highFront = translateWithBase(top.a, bases).y < translateWithBase(top.c, bases).y;
+	    if (!highFront)
+	        drawShape(p, bases, sun, topShape(cell), cols);
 	    drawShape(p, bases, sun, leftShape(cell), cols);
 	    drawShape(p, bases, sun, rightShape(cell), cols);
 	    if (outline) {
-	        outlineCell(p, bases, fullShape(cell), '#000', (scale * 3) / 2);
+	        if (!highFront)
+	            outlineCell(p, bases, fullShape(cell), '#000', (scale * 3) / 2);
+	        else
+	            outlineCell(p, bases, frontShape(cell), '#000', (scale * 3) / 2);
 	        innerLinesCell(p, bases, corners(cell), cornerPos(cell), '#000', scale / 2);
 	    }
 	}
@@ -5080,7 +5103,11 @@
 	function createColorScale(name, levels) {
 	    var palette = get(name).colors;
 	    palette.sort(function (a, b) { return chroma(a).luminance() - chroma(b).luminance(); });
-	    return chroma.scale(palette).mode('lch').colors(levels);
+	    return chroma
+	        .scale(palette)
+	        .mode('lch')
+	        .gamma(Math.pow(2, -PARAMS.gamma))
+	        .colors(levels * palette.length);
 	}
 
 	/*
@@ -12791,9 +12818,9 @@
 	    });
 	    colorPane.addInput(PARAMS, 'palette1Levels', {
 	        label: 'Levels',
-	        step: 2,
-	        min: 2,
-	        max: 50
+	        step: 1,
+	        min: 1,
+	        max: 10
 	    });
 	    colorPane.addInput(PARAMS, 'palette2', {
 	        label: 'Secondary palette',
@@ -12804,9 +12831,9 @@
 	    });
 	    colorPane.addInput(PARAMS, 'palette2Levels', {
 	        label: 'Levels',
-	        step: 2,
-	        min: 2,
-	        max: 50
+	        step: 1,
+	        min: 1,
+	        max: 10
 	    });
 	    colorPane.addInput(PARAMS, 'palette3', {
 	        label: 'Contrast palette',
@@ -12817,9 +12844,15 @@
 	    });
 	    colorPane.addInput(PARAMS, 'palette3Levels', {
 	        label: 'Levels',
-	        step: 2,
-	        min: 2,
-	        max: 50
+	        step: 1,
+	        min: 1,
+	        max: 10
+	    });
+	    colorPane.addInput(PARAMS, 'gamma', {
+	        label: 'Gamma',
+	        step: 0.2,
+	        min: -2,
+	        max: 2
 	    });
 	    var palette_button = colorPane.addButton({ title: 'Randomize Colors' });
 	    palette_button.on('click', function () {
