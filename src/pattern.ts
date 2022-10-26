@@ -1,5 +1,4 @@
 import { Segment } from './interfaces';
-import { rng } from './random';
 
 export function parsePattern(pattern: string): Segment[] {
   return pattern.split('_').map((segment) => {
@@ -12,7 +11,7 @@ export function parsePattern(pattern: string): Segment[] {
   });
 }
 
-export function createDimPattern(): string {
+export function createDimPattern(rng: Function): string {
   const numberOfSegments = 1 + Math.floor(rng() * 4);
   const segments = [];
   for (let i = 0; i < numberOfSegments; i++) {
@@ -28,8 +27,8 @@ export function createDimPattern(): string {
   return segments.join('_');
 }
 
-export function createSlopePattern(): string {
   const numberOfSegments = 1 + Math.floor(rng() * 4);
+export function createSlopePattern(rng: Function): string {
   const segments = [];
   for (let i = 0; i < numberOfSegments; i++) {
     const numberOfReps = 1 + Math.floor(rng() * 3);

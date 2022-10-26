@@ -158,11 +158,11 @@ function randomizeSeed() {
 }
 
 function randomizePattern() {
-  PARAMS.xPattern = createDimPattern();
-  PARAMS.yPattern = createDimPattern();
+  PARAMS.xPattern = createDimPattern(Math.random);
+  PARAMS.yPattern = createDimPattern(Math.random);
 }
 
 function randomizeSlopePattern() {
-  PARAMS.xSlopePattern = createSlopePattern();
-  PARAMS.ySlopePattern = createSlopePattern();
+  PARAMS.xSlopePattern = createSlopePattern(Math.random);
+  PARAMS.ySlopePattern = createSlopePattern(Math.random);
 }
