@@ -44,3 +44,15 @@ export function createSlopePattern(rng: Function): string {
   }
   return segments.join('_');
 }
+
+export function createSlopes(rng: Function): Slope[][] {
+  const profiles = [];
+  for (let i = 0; i < 32; i++) {
+    const profileRow = [];
+    for (let j = 0; j < 32; j++) {
+      profileRow.push({ z: rng(), xslope: rng() * 2 - 1, yslope: rng() * 2 - 1 });
+    }
+    profiles.push(profileRow);
+  }
+  return profiles;
+}

@@ -3,18 +3,19 @@ import { Cell } from './interfaces';
 import { rng } from './random';
 import { createNoise2D } from 'simplex-noise';
 import PARAMS from './params';
-import { createSlopePattern, parsePattern } from './pattern';
+import { createSlopes, parsePattern } from './pattern';
 import { sum } from './util';
 
 const TOTAL_DIM = 3000;
 
 export function createGrid(): Cell[] {
   const noise = createNoise2D(rng);
+  const slopes = createSlopes(rng);
   const xPattern = expandDimPattern(PARAMS.xPattern, TOTAL_DIM);
   const yPattern = expandDimPattern(PARAMS.yPattern, TOTAL_DIM);
-
   const xSlopePattern = expandSlopePattern(PARAMS.xSlopePattern, xPattern.length);
   const ySlopePattern = expandSlopePattern(PARAMS.ySlopePattern, yPattern.length);
+
   const xDim = sum(xPattern);
   const yDim = sum(yPattern);
 
@@ -27,36 +28,37 @@ export function createGrid(): Cell[] {
       let cw = xPattern[j];
       let nVal = noise(accx * PARAMS.noiseScale * 0.02, accy * PARAMS.noiseScale * 0.02);
       let nHeight = 1 + Math.max(0, nVal) * PARAMS.noiseMagnitude;
+      let slope = slopes[ySlopePattern[i]][xSlopePattern[j]];
 
-      let xSlope = xSlopePattern[j] > 2 ? rng() * 2 - 1 : xSlopePattern[j];
-      let ySlope = ySlopePattern[i] > 2 ? rng() * 2 - 1 : ySlopePattern[i];
-      cells.push(
-        /*
-        getRandomCell(
-          accx,
-          accy,
-          cw + 2,
-          ch + 2,
-          nHeight * PARAMS.heightRange,
-          nHeight * PARAMS.slopeRange,
-          nHeight * PARAMS.slopeRange
-        )*/
-
-        getCell(
-          accx,
-          accy,
-          cw + 2,
-          ch + 2,
-          nHeight * PARAMS.heightRange,
-          ySlope * nHeight * PARAMS.slopeRange,
-          xSlope * nHeight * PARAMS.slopeRange
-        )
-      );
+      if (PARAMS.randomSlopes) {
+        cells.push(
+          getRandomCell(
+            accx - 1,
+            accy - 1,
+            cw + 2,
+            ch + 2,
+            nHeight * PARAMS.heightRange,
+            nHeight * PARAMS.slopeRange,
+            nHeight * PARAMS.slopeRange
+          )
+        );
+      } else {
+        cells.push(
+          getCell(
+            accx - 1,
+            accy - 1,
+            cw + 2,
+            ch + 2,
+            slope.z * nHeight * PARAMS.heightRange,
+            slope.xslope * nHeight * PARAMS.slopeRange,
+            slope.yslope * nHeight * PARAMS.slopeRange
+          )
+        );
+      }
       accx += cw;
     }
     accy += ch;
   }
-  console.log(cells);
   return cells.reverse();
 }
 
@@ -70,7 +72,6 @@ export function expandDimPattern(pattern: string, dim: number) {
 
 export function expandSlopePattern(pattern: string, num: number) {
   const segments = parsePattern(pattern);
-  console.log(segments);
   const expanded = segments.flatMap((seg) => [...new Array(seg.reps)].flatMap(() => seg.dims));
   let i = 0;
   while (expanded.length < num) expanded.push(expanded[i++]);
