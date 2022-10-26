@@ -1,4 +1,4 @@
-import { Segment } from './interfaces';
+import { Segment, Slope } from './interfaces';
 
 export function parsePattern(pattern: string): Segment[] {
   return pattern.split('_').map((segment) => {
@@ -19,7 +19,8 @@ export function createDimPattern(rng: Function): string {
     const numberOfDims = 1 + Math.floor(rng() * 3);
     const dims = [];
     for (let j = 0; j < numberOfDims; j++) {
-      dims.push(10 + Math.floor(rng() * 70));
+      dims.push(10 + Math.floor(Math.pow(rng() * 9, 2)));
+      //dims.push(10 + Math.floor(rng() * 70));
     }
     const segment = numberOfReps + '[' + dims.join(':') + ']';
     segments.push(segment);
@@ -27,17 +28,16 @@ export function createDimPattern(rng: Function): string {
   return segments.join('_');
 }
 
-  const numberOfSegments = 1 + Math.floor(rng() * 4);
 export function createSlopePattern(rng: Function): string {
+  const numberOfSegments = 1 + Math.floor(rng() * 3);
   const segments = [];
+  let tick = 0;
   for (let i = 0; i < numberOfSegments; i++) {
     const numberOfReps = 1 + Math.floor(rng() * 3);
-    const numberOfSlopes = 1 + Math.floor(rng() * 8);
+    const numberOfSlopes = 1 + Math.floor(rng() * 7);
     const slopeProfiles = [];
     for (let j = 0; j < numberOfSlopes; j++) {
-      const slope = Math.round((rng() * 2 - 1) * 1000) / 1000;
-      const wildcard = rng() < 0.2;
-      slopeProfiles.push(wildcard ? 13 : slope);
+      slopeProfiles.push(tick++);
     }
     const segment = numberOfReps + '[' + slopeProfiles.join(':') + ']';
     segments.push(segment);
