@@ -12,8 +12,7 @@ let sketch = function (p: P5) {
   const DIMY = Math.min(window.innerHeight, window.innerWidth);
   const CENTER = { x: DIMX / 2, y: DIMY / 2 };
 
-  const scale = DIMX / 1200;
-
+  const scale = Math.min(DIMX, DIMY) / 1200;
 
   let grid: Cell[];
 
