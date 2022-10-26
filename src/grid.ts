@@ -6,7 +6,7 @@ import PARAMS from './params';
 import { createSlopes, parsePattern } from './pattern';
 import { sum } from './util';
 
-const TOTAL_DIM = 3000;
+const TOTAL_DIM = 2200;
 
 export function createGrid(): Cell[] {
   const noise = createNoise2D(rng);
