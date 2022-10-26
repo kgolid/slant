@@ -3616,6 +3616,18 @@
 
 	var misc = [
 	  {
+	    name: 'bn1',
+	    colors: ['#df3d2b', '#1d5a68', '#3a253b', '#2c1624', '#2e8275', '#c47676', '#eac332', '#efe4cd'],
+	    stroke: '#0b0b0b',
+	    background: '#f2e8e4',
+	  },
+	  {
+	    name: 'bn2',
+	    colors: ['#48375f', '#5a4b9b', '#eee3d9', '#dc6c69', '#d4729b', '#acbbcc', '#2a1636', '#c5aba4'],
+	    stroke: '#0b0b0b',
+	    background: '#f2e8e4',
+	  },
+	  {
 	    name: 'frozen-rose',
 	    colors: ['#29368f', '#e9697b', '#1b164d', '#f7d996'],
 	    background: '#f2e8e4',
@@ -4617,6 +4629,12 @@
 	    background: '#f0dbbc',
 	  },
 	  {
+	    name: 'skyspider1',
+	    colors: ['#f4b232', '#f2dbbd'],
+	    stroke: '#050505',
+	    background: '#f0dbbc',
+	  },
+	  {
 	    name: 'atlas',
 	    colors: ['#5399b1', '#f4e9d5', '#de4037', '#ed942f', '#4e9e48', '#7a6e62'],
 	    stroke: '#3d352b',
@@ -4865,23 +4883,24 @@
 	    sunPosition: { x: 0, y: 0 },
 	    mouseControlsSun: false,
 	    sunHeight: 250,
-	    zoom: 1,
+	    gamma: 0,
+	    zoom: 1.6,
 	    heightRange: 10,
 	    slopeRange: 0.1,
-	    xPattern: '5[40]',
-	    yPattern: '5[40]',
+	    xPattern: '1[50:20:10]',
+	    yPattern: '1[10:30]',
 	    xSlopePattern: '1[13]',
 	    ySlopePattern: '1[13]',
+	    randomSlopes: true,
 	    noiseMagnitude: 3,
 	    noiseScale: 0.05,
 	    palette1: 'ducci_q',
 	    palette1Levels: 3,
 	    palette2: 'hilda04',
 	    palette2Levels: 3,
-	    palette3: 'tundra4',
+	    palette3: 'spatial02i',
 	    palette3Levels: 3,
-	    gamma: 0,
-	    stroke: true
+	    stroke: false
 	};
 
 	var Random = (function () {
@@ -4942,6 +4961,14 @@
 	        yslope: yslope * h,
 	        col: col
 	    };
+	}
+	function getRandomCell(x, y, w, h, zmax, xsmax, ysmax) {
+	    var z = xsmax * w + ysmax * h + rng() * zmax;
+	    var xs = (rng() * 2 - 1) * xsmax * w;
+	    var ys = (rng() * 2 - 1) * ysmax * h;
+	    var flip = rng();
+	    var col = flip < 0.6 ? 0 : flip < 0.9 ? 1 : 2;
+	    return { x: x, y: y, z: z, w: w, h: h, xslope: xs, yslope: ys, col: col };
 	}
 	function cellPos(cell) {
 	    return { x: cell.x, y: cell.y, z: cell.z };
@@ -5051,10 +5078,10 @@
 	    return midpoint(ab, dc);
 	}
 
-	var BRIGHTNESS = 1;
 	function illuminanceOfShape(sun, shape) {
 	    var angle = angleBetweenPointAndShape(sun, shape);
-	    return BRIGHTNESS * Math.max(0, -Math.cos(angle));
+	    var illuminance = Math.max(0, -Math.cos(angle));
+	    return Math.pow(illuminance, Math.pow(2, -PARAMS.gamma));
 	}
 
 	function drawGrid(p, bases, sun, cells, paletteNames, paletteLevels, outline, scale) {
@@ -5120,7 +5147,6 @@
 	    return chroma
 	        .scale(palette)
 	        .mode('lch')
-	        .gamma(Math.pow(2, -PARAMS.gamma))
 	        .colors(levels * palette.length);
 	}
 
@@ -5284,7 +5310,7 @@
 	        return { reps: reps, dims: dims };
 	    });
 	}
-	function createDimPattern() {
+	function createDimPattern(rng) {
 	    var numberOfSegments = 1 + Math.floor(rng() * 4);
 	    var segments = [];
 	    for (var i = 0; i < numberOfSegments; i++) {
@@ -5292,34 +5318,45 @@
 	        var numberOfDims = 1 + Math.floor(rng() * 3);
 	        var dims = [];
 	        for (var j = 0; j < numberOfDims; j++) {
-	            dims.push(10 + Math.floor(rng() * 70));
+	            dims.push(10 + Math.floor(Math.pow(rng() * 9, 2)));
 	        }
 	        var segment = numberOfReps + '[' + dims.join(':') + ']';
 	        segments.push(segment);
 	    }
 	    return segments.join('_');
 	}
-	function createSlopePattern() {
-	    var numberOfSegments = 1 + Math.floor(rng() * 4);
+	function createSlopePattern(rng) {
+	    var numberOfSegments = 1 + Math.floor(rng() * 3);
 	    var segments = [];
+	    var tick = 0;
 	    for (var i = 0; i < numberOfSegments; i++) {
 	        var numberOfReps = 1 + Math.floor(rng() * 3);
-	        var numberOfSlopes = 1 + Math.floor(rng() * 8);
+	        var numberOfSlopes = 1 + Math.floor(rng() * 7);
 	        var slopeProfiles = [];
 	        for (var j = 0; j < numberOfSlopes; j++) {
-	            var slope = Math.round((rng() * 2 - 1) * 1000) / 1000;
-	            var wildcard = rng() < 0.2;
-	            slopeProfiles.push(wildcard ? 13 : slope);
+	            slopeProfiles.push(tick++);
 	        }
 	        var segment = numberOfReps + '[' + slopeProfiles.join(':') + ']';
 	        segments.push(segment);
 	    }
 	    return segments.join('_');
 	}
+	function createSlopes(rng) {
+	    var profiles = [];
+	    for (var i = 0; i < 32; i++) {
+	        var profileRow = [];
+	        for (var j = 0; j < 32; j++) {
+	            profileRow.push({ z: rng(), xslope: rng() * 2 - 1, yslope: rng() * 2 - 1 });
+	        }
+	        profiles.push(profileRow);
+	    }
+	    return profiles;
+	}
 
-	var TOTAL_DIM = 3000;
+	var TOTAL_DIM = 2200;
 	function createGrid() {
 	    var noise = createNoise2D(rng);
+	    var slopes = createSlopes(rng);
 	    var xPattern = expandDimPattern(PARAMS.xPattern, TOTAL_DIM);
 	    var yPattern = expandDimPattern(PARAMS.yPattern, TOTAL_DIM);
 	    var xSlopePattern = expandSlopePattern(PARAMS.xSlopePattern, xPattern.length);
@@ -5335,14 +5372,17 @@
 	            var cw = xPattern[j];
 	            var nVal = noise(accx * PARAMS.noiseScale * 0.02, accy * PARAMS.noiseScale * 0.02);
 	            var nHeight = 1 + Math.max(0, nVal) * PARAMS.noiseMagnitude;
-	            var xSlope = xSlopePattern[j] > 2 ? rng() * 2 - 1 : xSlopePattern[j];
-	            var ySlope = ySlopePattern[i] > 2 ? rng() * 2 - 1 : ySlopePattern[i];
-	            cells.push(getCell(accx, accy, cw + 2, ch + 2, nHeight * PARAMS.heightRange, ySlope * nHeight * PARAMS.slopeRange, xSlope * nHeight * PARAMS.slopeRange));
+	            var slope = slopes[ySlopePattern[i]][xSlopePattern[j]];
+	            if (PARAMS.randomSlopes) {
+	                cells.push(getRandomCell(accx - 1, accy - 1, cw + 2, ch + 2, nHeight * PARAMS.heightRange, nHeight * PARAMS.slopeRange, nHeight * PARAMS.slopeRange));
+	            }
+	            else {
+	                cells.push(getCell(accx - 1, accy - 1, cw + 2, ch + 2, slope.z * nHeight * PARAMS.heightRange, slope.xslope * nHeight * PARAMS.slopeRange, slope.yslope * nHeight * PARAMS.slopeRange));
+	            }
 	            accx += cw;
 	        }
 	        accy += ch;
 	    }
-	    console.log(cells);
 	    return cells.reverse();
 	}
 	function expandDimPattern(pattern, dim) {
@@ -5355,7 +5395,6 @@
 	}
 	function expandSlopePattern(pattern, num) {
 	    var segments = parsePattern(pattern);
-	    console.log(segments);
 	    var expanded = segments.flatMap(function (seg) { return __spreadArray([], new Array(seg.reps), true).flatMap(function () { return seg.dims; }); });
 	    var i = 0;
 	    while (expanded.length < num)
@@ -12826,8 +12865,8 @@
 	}));
 	});
 
-	function createGUI (resetFn) {
-	    var pane = new tweakpane.Pane({ title: 'Slant Settings' });
+	function createGUI (resetFn, redrawFn) {
+	    var pane = new tweakpane.Pane({ title: 'Slant Settings' }).on('change', function () { return redrawFn(); });
 	    var seedPane = pane.addFolder({ title: 'Seed Settings' });
 	    seedPane.addInput(PARAMS, 'seed', { label: 'Seed' }).on('change', function () { return resetFn(); });
 	    var seed_button = seedPane.addButton({ title: 'Randomize Seed' });
@@ -12853,9 +12892,15 @@
 	    sunPane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
 	    sunPane.addInput(PARAMS, 'sunHeight', {
 	        label: 'Sun height',
-	        step: 25,
+	        step: 50,
 	        min: 50,
-	        max: 500
+	        max: 900
+	    });
+	    sunPane.addInput(PARAMS, 'gamma', {
+	        label: 'Gamma',
+	        step: 0.2,
+	        min: -2,
+	        max: 2
 	    });
 	    var cellPane = pane.addFolder({ title: 'Cell Settings' });
 	    cellPane.addInput(PARAMS, 'zoom', {
@@ -12863,24 +12908,6 @@
 	        step: 0.1,
 	        min: 0.6,
 	        max: 2.5
-	    });
-	    var patternPane = pane.addFolder({ title: 'Pattern Settings' }).on('change', function () { return resetFn(); });
-	    patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
-	    patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
-	    var pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
-	    pattern_button.on('click', function () {
-	        randomizePattern();
-	        pane.refresh();
-	    });
-	    var slopePatternPane = pane
-	        .addFolder({ title: 'Slope Pattern Settings' })
-	        .on('change', function () { return resetFn(); });
-	    slopePatternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
-	    slopePatternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
-	    var slope_pattern_button = slopePatternPane.addButton({ title: 'Randomize Slope Pattern' });
-	    slope_pattern_button.on('click', function () {
-	        randomizeSlopePattern();
-	        pane.refresh();
 	    });
 	    cellPane
 	        .addInput(PARAMS, 'heightRange', {
@@ -12951,18 +12978,30 @@
 	        min: 1,
 	        max: 10
 	    });
-	    colorPane.addInput(PARAMS, 'gamma', {
-	        label: 'Gamma',
-	        step: 0.2,
-	        min: -2,
-	        max: 2
-	    });
 	    var palette_button = colorPane.addButton({ title: 'Randomize Colors' });
 	    palette_button.on('click', function () {
 	        randomizePalettes();
 	        pane.refresh();
 	    });
 	    pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
+	    var patternPane = pane
+	        .addFolder({ title: 'Pattern Settings', expanded: false })
+	        .on('change', function () { return resetFn(); });
+	    patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
+	    patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
+	    var pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
+	    pattern_button.on('click', function () {
+	        randomizePattern();
+	        pane.refresh();
+	    });
+	    patternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
+	    patternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
+	    var slope_pattern_button = patternPane.addButton({ title: 'Randomize Slope Pattern' });
+	    slope_pattern_button.on('click', function () {
+	        randomizeSlopePattern();
+	        pane.refresh();
+	    });
+	    patternPane.addInput(PARAMS, 'randomSlopes', { label: 'Random Slopes' });
 	}
 	function randomizePalettes() {
 	    PARAMS.palette1 = get().name;
@@ -12973,19 +13012,19 @@
 	    PARAMS.seed = createHash();
 	}
 	function randomizePattern() {
-	    PARAMS.xPattern = createDimPattern();
-	    PARAMS.yPattern = createDimPattern();
+	    PARAMS.xPattern = createDimPattern(Math.random);
+	    PARAMS.yPattern = createDimPattern(Math.random);
 	}
 	function randomizeSlopePattern() {
-	    PARAMS.xSlopePattern = createSlopePattern();
-	    PARAMS.ySlopePattern = createSlopePattern();
+	    PARAMS.xSlopePattern = createSlopePattern(Math.random);
+	    PARAMS.ySlopePattern = createSlopePattern(Math.random);
 	}
 
 	var sketch = function (p) {
 	    var DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71;
 	    var DIMY = Math.min(window.innerHeight, window.innerWidth);
 	    var CENTER = { x: DIMX / 2, y: DIMY / 2 };
-	    var scale = DIMX / 1200;
+	    var scale = Math.min(DIMX, DIMY) / 1200;
 	    var grid;
 	    p.setup = function () {
 	        p.createCanvas(DIMX, DIMY);
@@ -12994,18 +13033,26 @@
 	        p.pixelDensity(4);
 	        p.fill(255);
 	        resetGrid();
-	        createGUI(resetGrid);
+	        draw();
+	        createGUI(resetGrid, draw);
 	    };
 	    p.draw = function () {
-	        p.background(255);
-	        p.translate(CENTER.x, CENTER.y);
+	        if (PARAMS.mouseControlsSun) {
+	            draw();
+	        }
+	    };
+	    function draw() {
 	        var bases = getBases(PARAMS.zoom * scale);
 	        var invbases = getInverseBases(1 / PARAMS.zoom);
 	        var sun = translateWithBase(getSunPos(), invbases);
 	        var palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
 	        var paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
+	        p.push();
+	        p.background(0);
+	        p.translate(CENTER.x, CENTER.y);
 	        drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
-	    };
+	        p.pop();
+	    }
 	    p.keyPressed = function () {
 	        if (p.keyCode === 80)
 	            p.saveCanvas('Slant_' +
