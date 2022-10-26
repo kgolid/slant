@@ -29,21 +29,29 @@ let sketch = function (p: P5) {
     p.fill(255);
 
     resetGrid();
-    createGUI(resetGrid);
+    draw();
+    createGUI(resetGrid, draw);
   };
 
   p.draw = function () {
-    p.background(255);
-    p.translate(CENTER.x, CENTER.y);
+    if (PARAMS.mouseControlsSun) {
+      draw();
+    }
+  };
 
+  function draw() {
     const bases = getBases(PARAMS.zoom * scale);
     const invbases = getInverseBases(1 / PARAMS.zoom);
     const sun = translateWithBase(getSunPos(), invbases);
     const palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
     const paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
 
+    p.push();
+    p.background(0);
+    p.translate(CENTER.x, CENTER.y);
     drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
-  };
+    p.pop();
+  }
 
   p.keyPressed = function () {
     if (p.keyCode === 80)
