@@ -35,9 +35,15 @@ export default function (resetFn: Function) {
 
   sunPane.addInput(PARAMS, 'sunHeight', {
     label: 'Sun height',
-    step: 25,
+    step: 50,
     min: 50,
-    max: 500,
+    max: 900,
+  });
+  sunPane.addInput(PARAMS, 'gamma', {
+    label: 'Gamma',
+    step: 0.2,
+    min: -2,
+    max: 2,
   });
 
   const cellPane = pane.addFolder({ title: 'Cell Settings' });
@@ -46,26 +52,6 @@ export default function (resetFn: Function) {
     step: 0.1,
     min: 0.6,
     max: 2.5,
-  });
-
-  const patternPane = pane.addFolder({ title: 'Pattern Settings' }).on('change', () => resetFn());
-  patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
-  patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
-  const pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
-  pattern_button.on('click', () => {
-    randomizePattern();
-    pane.refresh();
-  });
-
-  const slopePatternPane = pane
-    .addFolder({ title: 'Slope Pattern Settings' })
-    .on('change', () => resetFn());
-  slopePatternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
-  slopePatternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
-  const slope_pattern_button = slopePatternPane.addButton({ title: 'Randomize Slope Pattern' });
-  slope_pattern_button.on('click', () => {
-    randomizeSlopePattern();
-    pane.refresh();
   });
 
   cellPane
@@ -132,13 +118,6 @@ export default function (resetFn: Function) {
     max: 10,
   });
 
-  colorPane.addInput(PARAMS, 'gamma', {
-    label: 'Gamma',
-    step: 0.2,
-    min: -2,
-    max: 2,
-  });
-
   const palette_button = colorPane.addButton({ title: 'Randomize Colors' });
   palette_button.on('click', () => {
     randomizePalettes();
@@ -146,6 +125,26 @@ export default function (resetFn: Function) {
   });
 
   pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
+
+  const patternPane = pane
+    .addFolder({ title: 'Pattern Settings', expanded: false })
+    .on('change', () => resetFn());
+  patternPane.addInput(PARAMS, 'xPattern', { label: 'X-Pattern' });
+  patternPane.addInput(PARAMS, 'yPattern', { label: 'Y-Pattern' });
+  const pattern_button = patternPane.addButton({ title: 'Randomize Pattern' });
+  pattern_button.on('click', () => {
+    randomizePattern();
+    pane.refresh();
+  });
+  patternPane.addInput(PARAMS, 'xSlopePattern', { label: 'X-Pattern' });
+  patternPane.addInput(PARAMS, 'ySlopePattern', { label: 'Y-Pattern' });
+  const slope_pattern_button = patternPane.addButton({ title: 'Randomize Slope Pattern' });
+  slope_pattern_button.on('click', () => {
+    randomizeSlopePattern();
+    pane.refresh();
+  });
+
+  patternPane.addInput(PARAMS, 'randomSlopes', { label: 'Random Slopes' });
 }
 
 function randomizePalettes() {

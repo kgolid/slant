@@ -17,6 +17,12 @@ export interface Shape {
   d: Vec;
 }
 
+export interface Slope {
+  z: number;
+  xslope: number;
+  yslope: number;
+}
+
 export interface Cell {
   x: number;
   y: number;
@@ -45,6 +51,7 @@ export interface ParameterList {
 
   xSlopePattern: string;
   ySlopePattern: string;
+  randomSlopes: boolean;
 
   heightRange: number;
   slopeRange: number;
