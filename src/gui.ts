@@ -4,8 +4,8 @@ import PARAMS from './params';
 import { createHash } from './util';
 import { createDimPattern, createSlopePattern } from './pattern';
 
-export default function (resetFn: Function) {
-  const pane = new Pane({ title: 'Slant Settings' });
+export default function (resetFn: Function, redrawFn: Function) {
+  const pane = new Pane({ title: 'Slant Settings' }).on('change', () => redrawFn());
   const seedPane = pane.addFolder({ title: 'Seed Settings' });
 
   seedPane.addInput(PARAMS, 'seed', { label: 'Seed' }).on('change', () => resetFn());
