@@ -14,10 +14,6 @@ let sketch = function (p: P5) {
 
   const scale = DIMX / 1200;
 
-  const XPATTERN = [30, 40, 10]; //[50, 20, 10] [70,10]
-  const YPATTERN = [10, 40, 30]; // [10,30]
-  const XREPS = 30;
-  const YREPS = 30;
 
   let grid: Cell[];
 
