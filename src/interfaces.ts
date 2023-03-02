@@ -72,4 +72,5 @@ export interface ParameterList {
   gamma: number;
 
   stroke: boolean;
+  rotation: number;
 }

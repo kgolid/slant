@@ -28,6 +28,7 @@ let PARAMS: ParameterList = {
   palette2Lock: false,
   palette3Lock: false,
   stroke: false,
+  rotation: 0,
 };
 
 export default PARAMS;

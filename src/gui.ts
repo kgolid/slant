@@ -128,6 +128,12 @@ export default function (resetFn: Function, redrawFn: Function) {
   });
 
   pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
+  pane.addInput(PARAMS, 'rotation', {
+    label: 'Rotation',
+    step: 1,
+    min: -6,
+    max: 6,
+  });
 
   const patternPane = pane
     .addFolder({ title: 'Pattern Settings', expanded: false })

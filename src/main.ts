@@ -82,9 +82,12 @@ let sketch = function (p: P5) {
   }
 
   function getBases(scale: number): Vec[] {
-    const PHI1 = -Math.PI / 6;
-    const PHI2 = -(5 * Math.PI) / 6;
-    const PHI3 = -Math.PI / 2;
+    const rot = (PARAMS.rotation * Math.PI) / 12;
+
+    const PHI1 = -Math.PI / 6 + rot;
+    const PHI2 = -(5 * Math.PI) / 6 + rot;
+    const PHI3 = -Math.PI / 2 + rot;
+
     const b1 = { x: Math.cos(PHI1), y: Math.sin(PHI1), z: 0 };
     const b2 = { x: Math.cos(PHI2), y: Math.sin(PHI2), z: 0 };
     const b3 = { x: Math.cos(PHI3), y: Math.sin(PHI3), z: 1 };
