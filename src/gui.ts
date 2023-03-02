@@ -21,14 +21,14 @@ export default function (resetFn: Function, redrawFn: Function) {
     label: 'Sun position',
     picker: 'inline',
     x: {
-      step: 0.1,
-      min: -1,
-      max: 1,
+      step: 0.2,
+      min: -2,
+      max: 2,
     },
     y: {
-      step: 0.1,
-      min: -1,
-      max: 1,
+      step: 0.2,
+      min: -2,
+      max: 2,
     },
   });
   sunPane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
@@ -95,7 +95,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     label: 'Levels',
     step: 1,
     min: 1,
-    max: 10,
+    max: 5,
   });
   colorPane.addInput(PARAMS, 'palette1Lock', { label: 'Lock' });
   colorPane.addInput(PARAMS, 'palette2', {
@@ -106,7 +106,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     label: 'Levels',
     step: 1,
     min: 1,
-    max: 10,
+    max: 5,
   });
   colorPane.addInput(PARAMS, 'palette2Lock', { label: 'Lock' });
   colorPane.addInput(PARAMS, 'palette3', {
@@ -117,7 +117,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     label: 'Levels',
     step: 1,
     min: 1,
-    max: 10,
+    max: 5,
   });
   colorPane.addInput(PARAMS, 'palette3Lock', { label: 'Lock' });
 
