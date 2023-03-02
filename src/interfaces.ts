@@ -61,10 +61,13 @@ export interface ParameterList {
 
   palette1: string;
   palette1Levels: number;
+  palette1Lock: boolean;
   palette2: string;
   palette2Levels: number;
+  palette2Lock: boolean;
   palette3: string;
   palette3Levels: number;
+  palette3Lock: boolean;
 
   gamma: number;
 

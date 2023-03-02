@@ -24,6 +24,9 @@ let PARAMS: ParameterList = {
   palette2Levels: 3,
   palette3: 'spatial02i', //tundra4
   palette3Levels: 3,
+  palette1Lock: false,
+  palette2Lock: false,
+  palette3Lock: false,
   stroke: false,
 };
 

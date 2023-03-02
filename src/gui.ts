@@ -97,6 +97,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     min: 1,
     max: 10,
   });
+  colorPane.addInput(PARAMS, 'palette1Lock', { label: 'Lock' });
   colorPane.addInput(PARAMS, 'palette2', {
     label: 'Secondary palette',
     options: Object.assign({}, ...tome.getNames().map((n) => ({ [n]: n }))),
@@ -107,6 +108,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     min: 1,
     max: 10,
   });
+  colorPane.addInput(PARAMS, 'palette2Lock', { label: 'Lock' });
   colorPane.addInput(PARAMS, 'palette3', {
     label: 'Contrast palette',
     options: Object.assign({}, ...tome.getNames().map((n) => ({ [n]: n }))),
@@ -117,6 +119,7 @@ export default function (resetFn: Function, redrawFn: Function) {
     min: 1,
     max: 10,
   });
+  colorPane.addInput(PARAMS, 'palette3Lock', { label: 'Lock' });
 
   const palette_button = colorPane.addButton({ title: 'Randomize Colors' });
   palette_button.on('click', () => {
@@ -148,9 +151,9 @@ export default function (resetFn: Function, redrawFn: Function) {
 }
 
 function randomizePalettes() {
-  PARAMS.palette1 = tome.get().name;
-  PARAMS.palette2 = tome.get().name;
-  PARAMS.palette3 = tome.get().name;
+  if (!PARAMS.palette1Lock) PARAMS.palette1 = tome.get().name;
+  if (!PARAMS.palette2Lock) PARAMS.palette2 = tome.get().name;
+  if (!PARAMS.palette3Lock) PARAMS.palette3 = tome.get().name;
 }
 
 function randomizeSeed() {
