@@ -97,5 +97,5 @@ function createColorScale(name: string, levels: number) {
   return chroma
     .scale(palette)
     .mode('lch')
-    .colors(levels * palette.length);
+    .colors(levels * palette.length - levels + 1);
 }
