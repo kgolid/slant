@@ -31,6 +31,42 @@
 
 	var P5 = /*@__PURE__*/getDefaultExportFromCjs(p5_min);
 
+	/******************************************************************************
+	Copyright (c) Microsoft Corporation.
+
+	Permission to use, copy, modify, and/or distribute this software for any
+	purpose with or without fee is hereby granted.
+
+	THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+	REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+	AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+	INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+	LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+	OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+	PERFORMANCE OF THIS SOFTWARE.
+	***************************************************************************** */
+
+	var __assign = function() {
+	    __assign = Object.assign || function __assign(t) {
+	        for (var s, i = 1, n = arguments.length; i < n; i++) {
+	            s = arguments[i];
+	            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+	        }
+	        return t;
+	    };
+	    return __assign.apply(this, arguments);
+	};
+
+	function __spreadArray(to, from, pack) {
+	    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+	        if (ar || !(i in from)) {
+	            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+	            ar[i] = from[i];
+	        }
+	    }
+	    return to.concat(ar || Array.prototype.slice.call(from));
+	}
+
 	var chroma = createCommonjsModule(function (module, exports) {
 	/**
 	 * chroma.js - JavaScript library for color conversions
@@ -3616,6 +3652,24 @@
 
 	var misc = [
 	  {
+	    name: 'NoGood',
+	    colors: ['#fbbf14', '#0097c7', '#fc6021', '#03a486', '#1b0f43', '#dcd2c3', '#fff3d8', '#1f457d', '#025c64'],
+	    stroke: '#1d1145',
+	    background: '#fff3d8'
+	  },
+	  {
+	    name: 'NoGood2',
+	    colors:['#fef8ef', '#4a455c', '#607280','#281d2f'],
+	    stroke:'#281d2f',
+	    background: '#fef8ef'
+	  },
+	  {
+	    name: 'NoGood3',
+	    colors:['#6fa893', '#f92523', '#fbcb97','#f9366a', '#fbc82f', '#3a4194', '#13c996', '#1c2c2c', '#2a9092', '#93497a', '#fb9423'],
+	    stroke:'#281d2f',
+	    background: '#fef8ef'
+	  },
+	  {
 	    name: 'bn1',
 	    colors: ['#df3d2b', '#1d5a68', '#3a253b', '#2c1624', '#2e8275', '#c47676', '#eac332', '#efe4cd'],
 	    stroke: '#0b0b0b',
@@ -3625,6 +3679,33 @@
 	    name: 'bn2',
 	    colors: ['#48375f', '#5a4b9b', '#eee3d9', '#dc6c69', '#d4729b', '#acbbcc', '#2a1636', '#c5aba4'],
 	    stroke: '#0b0b0b',
+	    background: '#f2e8e4',
+	  },
+	  {
+	    name: 'turberas1',
+	    colors: ['#1a222b','#403b65', '#4a3b53', '#75505c', '#9c6b42', '#985056', '#b36546', '#b49f4d', '#dbb94d', '#886945', '#c6e8ba', '#b9d4c1', '#fef8ef'],
+	    stroke: '#1a222b',
+	    background: '#fff'
+	  },
+	  {
+	    name: 'turberas2',
+	    colors:['#b74544','#e86459', '#ef7f75', '#ebaca4'],
+	    stroke: '#000', background: '#fff'
+	  },
+	  {
+	    name: 'kitten',
+	    colors: ['#342818','#4b371b','#5a4831', '#746e3b', '#aa5223', '#d7c324', '#3b728c', '#c7b08b', '#ba3310', '#d1c3a2', '#b3a68d', '#676f35', '#617f78', '#b09770', '#ca8a1a', '#79ab47', '#c80406', '#c7ae34']
+	  },
+	  {
+	    name: 'claire_ligne',
+	    colors: ['#eae5ca', '#d1580e', '#c04113', '#afaca0', '#e9ac40', '#cfb577', '#92743d', '#ac8049', '#4c3e3a', '#6d8ea1', '#cab099', '#3b1929'],
+	    stroke: '#000',
+	    background: '#eee',
+	  },
+	  {
+	    name: 'matisse',
+	    colors: ['#f74713', '#f2e8e4'],
+	    stroke: '#f74713',
 	    background: '#f2e8e4',
 	  },
 	  {
@@ -4343,6 +4424,12 @@
 	    background: '#e9b500',
 	  },
 	  {
+	    name: 'dt10b',
+	    colors: ['#eee3d3', '#151513'],
+	    stroke: '#151513',
+	    background: '#e9b500',
+	  },
+	  {
 	    name: 'dt11',
 	    colors: ['#ece9e2'],
 	    stroke: '#221e1f',
@@ -4629,8 +4716,14 @@
 	    background: '#f0dbbc',
 	  },
 	  {
-	    name: 'skyspider1',
-	    colors: ['#f4b232', '#f2dbbd'],
+	    name: 'skyspiderBs',
+	    colors: ['#f4b232', '#f2dbbd', '#01799c', '#e93e48', '#006748', '#ed817d'],
+	    stroke: '#050505',
+	    background: '#f0dbbc',
+	  },
+	  {
+	    name: 'skyspiderW',
+	    colors: ['#f2dbbd'],
 	    stroke: '#050505',
 	    background: '#f0dbbc',
 	  },
@@ -4830,47 +4923,12 @@
 	  return palettes.map(p => p.name);
 	}
 
-	/******************************************************************************
-	Copyright (c) Microsoft Corporation.
-
-	Permission to use, copy, modify, and/or distribute this software for any
-	purpose with or without fee is hereby granted.
-
-	THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-	REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-	AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-	INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-	LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-	OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-	PERFORMANCE OF THIS SOFTWARE.
-	***************************************************************************** */
-
-	var __assign = function() {
-	    __assign = Object.assign || function __assign(t) {
-	        for (var s, i = 1, n = arguments.length; i < n; i++) {
-	            s = arguments[i];
-	            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-	        }
-	        return t;
-	    };
-	    return __assign.apply(this, arguments);
-	};
-
-	function __spreadArray(to, from, pack) {
-	    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-	        if (ar || !(i in from)) {
-	            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-	            ar[i] = from[i];
-	        }
-	    }
-	    return to.concat(ar || Array.prototype.slice.call(from));
-	}
-
-	function createHash() {
+	function createHash(rng) {
+	    if (rng === void 0) { rng = Math.random; }
 	    var alpha = '01234567890abcdef';
 	    var h = '';
 	    for (var i = 0; i < 64; i++) {
-	        h += alpha.charAt(Math.floor(Math.random() * alpha.length));
+	        h += alpha.charAt(Math.floor(rng() * alpha.length));
 	    }
 	    return h;
 	}
@@ -4882,25 +4940,29 @@
 	    seed: createHash(),
 	    sunPosition: { x: 0, y: 0 },
 	    mouseControlsSun: false,
-	    sunHeight: 250,
+	    sunHeight: 600,
 	    gamma: 0,
 	    zoom: 1.6,
 	    heightRange: 10,
 	    slopeRange: 0.1,
-	    xPattern: '1[50:20:10]',
-	    yPattern: '1[10:30]',
-	    xSlopePattern: '1[13]',
-	    ySlopePattern: '1[13]',
+	    xPattern: '1[70:30:15]',
+	    yPattern: '1[15:50]',
+	    xSlopePattern: '1[1:2:3:4]',
+	    ySlopePattern: '1[1:2:3]',
 	    randomSlopes: true,
 	    noiseMagnitude: 3,
 	    noiseScale: 0.05,
-	    palette1: 'ducci_q',
+	    palette1: 'rag-belur',
 	    palette1Levels: 3,
-	    palette2: 'hilda04',
-	    palette2Levels: 3,
-	    palette3: 'spatial02i',
-	    palette3Levels: 3,
-	    stroke: false
+	    palette1Lock: false,
+	    palette2: 'cc238',
+	    palette2Levels: 1,
+	    palette2Lock: false,
+	    palette3: 'dale_paddle',
+	    palette3Levels: 2,
+	    palette3Lock: false,
+	    stroke: false,
+	    rotation: 0
 	};
 
 	var Random = (function () {
@@ -5093,7 +5155,10 @@
 	}
 	function drawCell(p, sun, bases, cell, cols, outline, scale) {
 	    var top = topShape(cell);
-	    var highFront = translateWithBase(top.a, bases).y < translateWithBase(top.c, bases).y;
+	    var topFront = __assign(__assign({}, translateWithBase(top.c, bases)), { z: 0 });
+	    var topBack = __assign(__assign({}, translateWithBase(top.a, bases)), { z: 0 });
+	    var delta = angleBetween(sub(topFront, topBack), __assign(__assign({}, bases[2]), { z: 0 }));
+	    var highFront = Math.abs(delta) > Math.PI / 2;
 	    if (!highFront)
 	        drawShape(p, bases, sun, topShape(cell), cols);
 	    drawShape(p, bases, sun, leftShape(cell), cols);
@@ -5147,7 +5212,7 @@
 	    return chroma
 	        .scale(palette)
 	        .mode('lch')
-	        .colors(levels * palette.length);
+	        .colors(levels * palette.length - levels + 1);
 	}
 
 	/*
@@ -12879,14 +12944,14 @@
 	        label: 'Sun position',
 	        picker: 'inline',
 	        x: {
-	            step: 0.1,
-	            min: -1,
-	            max: 1
+	            step: 0.2,
+	            min: -2,
+	            max: 2
 	        },
 	        y: {
-	            step: 0.1,
-	            min: -1,
-	            max: 1
+	            step: 0.2,
+	            min: -2,
+	            max: 2
 	        }
 	    });
 	    sunPane.addInput(PARAMS, 'mouseControlsSun', { label: 'Mouse controls sun' });
@@ -12950,8 +13015,9 @@
 	        label: 'Levels',
 	        step: 1,
 	        min: 1,
-	        max: 10
+	        max: 5
 	    });
+	    colorPane.addInput(PARAMS, 'palette1Lock', { label: 'Lock' });
 	    colorPane.addInput(PARAMS, 'palette2', {
 	        label: 'Secondary palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
@@ -12963,8 +13029,9 @@
 	        label: 'Levels',
 	        step: 1,
 	        min: 1,
-	        max: 10
+	        max: 5
 	    });
+	    colorPane.addInput(PARAMS, 'palette2Lock', { label: 'Lock' });
 	    colorPane.addInput(PARAMS, 'palette3', {
 	        label: 'Contrast palette',
 	        options: Object.assign.apply(Object, __spreadArray([{}], getNames().map(function (n) {
@@ -12976,14 +13043,21 @@
 	        label: 'Levels',
 	        step: 1,
 	        min: 1,
-	        max: 10
+	        max: 5
 	    });
+	    colorPane.addInput(PARAMS, 'palette3Lock', { label: 'Lock' });
 	    var palette_button = colorPane.addButton({ title: 'Randomize Colors' });
 	    palette_button.on('click', function () {
 	        randomizePalettes();
 	        pane.refresh();
 	    });
 	    pane.addInput(PARAMS, 'stroke', { label: 'Outline cells' });
+	    pane.addInput(PARAMS, 'rotation', {
+	        label: 'Rotation',
+	        step: 1,
+	        min: -6,
+	        max: 6
+	    });
 	    var patternPane = pane
 	        .addFolder({ title: 'Pattern Settings', expanded: false })
 	        .on('change', function () { return resetFn(); });
@@ -13004,9 +13078,12 @@
 	    patternPane.addInput(PARAMS, 'randomSlopes', { label: 'Random Slopes' });
 	}
 	function randomizePalettes() {
-	    PARAMS.palette1 = get().name;
-	    PARAMS.palette2 = get().name;
-	    PARAMS.palette3 = get().name;
+	    if (!PARAMS.palette1Lock)
+	        PARAMS.palette1 = get().name;
+	    if (!PARAMS.palette2Lock)
+	        PARAMS.palette2 = get().name;
+	    if (!PARAMS.palette3Lock)
+	        PARAMS.palette3 = get().name;
 	}
 	function randomizeSeed() {
 	    PARAMS.seed = createHash();
@@ -13021,16 +13098,16 @@
 	}
 
 	var sketch = function (p) {
-	    var DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71;
-	    var DIMY = Math.min(window.innerHeight, window.innerWidth);
+	    var DIMX = Math.min(window.innerHeight, window.innerWidth) - 25;
+	    var DIMY = Math.min(window.innerHeight, window.innerWidth) - 25;
 	    var CENTER = { x: DIMX / 2, y: DIMY / 2 };
-	    var scale = Math.min(DIMX, DIMY) / 1200;
+	    var scale = Math.min(DIMX, DIMY) / 1500;
 	    var grid;
 	    p.setup = function () {
 	        p.createCanvas(DIMX, DIMY);
 	        p.background(0, 50, 50);
 	        p.noStroke();
-	        p.pixelDensity(4);
+	        p.pixelDensity(2);
 	        p.fill(255);
 	        resetGrid();
 	        draw();
@@ -13048,7 +13125,7 @@
 	        var palettes = [PARAMS.palette1, PARAMS.palette2, PARAMS.palette3];
 	        var paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
 	        p.push();
-	        p.background(0);
+	        p.background('#e5dfcf');
 	        p.translate(CENTER.x, CENTER.y);
 	        drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
 	        p.pop();
@@ -13080,9 +13157,10 @@
 	        };
 	    }
 	    function getBases(scale) {
-	        var PHI1 = -Math.PI / 6;
-	        var PHI2 = -(5 * Math.PI) / 6;
-	        var PHI3 = -Math.PI / 2;
+	        var rot = (PARAMS.rotation * Math.PI) / 12;
+	        var PHI1 = -Math.PI / 6 + rot;
+	        var PHI2 = -(5 * Math.PI) / 6 + rot;
+	        var PHI3 = -Math.PI / 2 + rot;
 	        var b1 = { x: Math.cos(PHI1), y: Math.sin(PHI1), z: 0 };
 	        var b2 = { x: Math.cos(PHI2), y: Math.sin(PHI2), z: 0 };
 	        var b3 = { x: Math.cos(PHI3), y: Math.sin(PHI3), z: 1 };
