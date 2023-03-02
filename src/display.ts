@@ -4,8 +4,7 @@ import * as tome from 'chromotome';
 import { cornerPos, corners, frontShape, fullShape, leftShape, rightShape, topShape } from './cell';
 import { Cell, Shape, Vec } from './interfaces';
 import { illuminanceOfShape } from './light';
-import { translateWithBase } from './vector';
-import PARAMS from './params';
+import { angleBetween, sub, translateWithBase } from './vector';
 
 export function drawGrid(
   p: P5,
@@ -34,7 +33,10 @@ export function drawCell(
   scale: number
 ): void {
   const top = topShape(cell);
-  const highFront = translateWithBase(top.a, bases).y < translateWithBase(top.c, bases).y;
+  const topFront = { ...translateWithBase(top.c, bases), z: 0 };
+  const topBack = { ...translateWithBase(top.a, bases), z: 0 };
+  const delta = angleBetween(sub(topFront, topBack), { ...bases[2], z: 0 });
+  const highFront = Math.abs(delta) > Math.PI / 2;
 
   if (!highFront) drawShape(p, bases, sun, topShape(cell), cols);
   drawShape(p, bases, sun, leftShape(cell), cols);
