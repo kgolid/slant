@@ -1,6 +1,4 @@
-import PARAMS from './params';
-
-class Random {
+class SRandom {
   useA: boolean;
   prngA: () => number;
   prngB: () => number;
@@ -42,13 +40,7 @@ class Random {
   }
 }
 
-let rand = new Random(PARAMS.seed);
-
-export function reset(): void {
-  rand = new Random(PARAMS.seed);
-}
-export const rng = brnd;
-
-function brnd(): number {
-  return rand.random_dec();
+export default function rng(hash: string): () => number {
+  const rand = new SRandom(hash);
+  return () => rand.random_dec();
 }

@@ -8,11 +8,11 @@ import createGUI from './gui';
 import PARAMS from './params';
 
 let sketch = function (p: P5) {
-  const DIMX = Math.min(window.innerHeight, window.innerWidth) * 0.71; //A4
-  const DIMY = Math.min(window.innerHeight, window.innerWidth);
+  const DIMX = Math.min(window.innerHeight, window.innerWidth) - 25; // * 0.71; //1250
+  const DIMY = Math.min(window.innerHeight, window.innerWidth) - 25; //1770
   const CENTER = { x: DIMX / 2, y: DIMY / 2 };
 
-  const scale = Math.min(DIMX, DIMY) / 1200;
+  const scale = Math.min(DIMX, DIMY) / 1500;
 
   let grid: Cell[];
 
@@ -20,7 +20,7 @@ let sketch = function (p: P5) {
     p.createCanvas(DIMX, DIMY);
     p.background(0, 50, 50);
     p.noStroke();
-    p.pixelDensity(4);
+    p.pixelDensity(2);
     p.fill(255);
 
     resetGrid();
@@ -42,7 +42,7 @@ let sketch = function (p: P5) {
     const paletteLevels = [PARAMS.palette1Levels, PARAMS.palette2Levels, PARAMS.palette3Levels];
 
     p.push();
-    p.background(0);
+    p.background('#e5dfcf');
     p.translate(CENTER.x, CENTER.y);
     drawGrid(p, bases, sun, grid, palettes, paletteLevels, PARAMS.stroke, scale * PARAMS.zoom);
     p.pop();

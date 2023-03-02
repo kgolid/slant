@@ -1,5 +1,4 @@
 import { ParameterList } from './interfaces';
-import { createDimPattern } from './pattern';
 import { createHash } from './util';
 
 let PARAMS: ParameterList = {
